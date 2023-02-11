@@ -44,7 +44,6 @@ package "Simulation" {
 @enduml
 ```
 
-![Diagram name](/Project%20outline/satelite.puml)
 
 ```cpp 
 #include <cuda_runtime.h>
