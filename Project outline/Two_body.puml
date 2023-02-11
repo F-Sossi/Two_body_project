@@ -20,4 +20,6 @@ class TwoBodyProblem {
   +__global__ void simulate()
 }
 
+Body --> TwoBodyProblem
+
 @enduml
