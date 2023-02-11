@@ -1,0 +1,23 @@
+@startuml
+
+class Body {
+  vector<float> position
+  vector<float> velocity
+  float mass
+
+  +__device__ void initialize(vector<float> pos, vector<float> vel, float m)
+  +__device__ void computeForce(Body otherBody)
+  +__device__ void updatePosition(float dt)
+  +__device__ void updateVelocity(float dt)
+}
+
+class TwoBodyProblem {
+  Body body1
+  Body body2
+  float dt
+
+  +__device__ void initialize(vector<float> pos1, vector<float> vel1, float m1, vector<float> pos2, vector<float> vel2, float m2, float timeStep)
+  +__global__ void simulate()
+}
+
+@enduml
