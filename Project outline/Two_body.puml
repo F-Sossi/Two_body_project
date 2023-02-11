@@ -1,5 +1,8 @@
-@startuml
-
+@startuml Two Body Problem
+package "Two Body Problem" #DDDDDD {
+  class Body
+  class Two_Body_Problem
+}
 class Body {
   vector<float> position
   vector<float> velocity
@@ -11,7 +14,7 @@ class Body {
   +__device__ void updateVelocity(float dt)
 }
 
-class TwoBodyProblem {
+class Two_Body_Problem {
   Body body1
   Body body2
   float dt
@@ -20,6 +23,6 @@ class TwoBodyProblem {
   +__global__ void simulate()
 }
 
-Body --> TwoBodyProblem
+Body --> Two_Body_Problem
 
 @enduml
