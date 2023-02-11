@@ -1,0 +1,43 @@
+@startuml
+package "Simulation" {
+  class "Satellite" {
+    +position: vector
+    +velocity: vector
+    +forces: array
+    +computeForces()
+    +integrate()
+  }
+
+  class "Force" {
+    +compute()
+  }
+
+  class "GravitationalForce" {
+    +compute()
+  }
+
+  class "AtmosphericDrag" {
+    +compute()
+  }
+
+  class "SolarRadiationPressure" {
+    +compute()
+  }
+
+  class "Thrust" {
+    +compute()
+  }
+
+  class "Simulation" {
+    +run()
+    +addSatellite(satellite: Satellite)
+  }
+
+  Satellite --> Force
+  Force <|-- GravitationalForce
+  Force <|-- AtmosphericDrag
+  Force <|-- SolarRadiationPressure
+  Force <|-- Thrust
+  Simulation --> Satellite
+}
+@enduml
