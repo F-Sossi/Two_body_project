@@ -12,8 +12,8 @@ file(GLOB VIEWER_SOURCES "src/viewer.h" "src/viewer.cpp")
 file(GLOB TWO_BODY_SOURCES "src/two_body.h" "src/two_body.cpp")
 
 
-cuda_add_executable(my_project ${KERNEL_SOURCES} ${VIEWER_SOURCES} ${TWO_BODY_SOURCES})
+cuda_add_executable(two_body.exe ${KERNEL_SOURCES} ${VIEWER_SOURCES} ${TWO_BODY_SOURCES})
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
-target_link_libraries(my_project ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
+target_link_libraries(two_body.exe ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})

@@ -405,6 +405,15 @@ my_project_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 my_project_SOURCE_DIR:STATIC=/home/user/repos/Two_body_project
 
+//Value Computed by CMake
+two_body.exe_BINARY_DIR:STATIC=/home/user/repos/Two_body_project/build
+
+//Value Computed by CMake
+two_body.exe_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+two_body.exe_SOURCE_DIR:STATIC=/home/user/repos/Two_body_project
+
 
 ########################
 # INTERNAL cache entries
@@ -559,7 +568,7 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 CUDA_64_BIT_DEVICE_CODE-ADVANCED:INTERNAL=1
 //List of intermediate files that are part of the cuda dependency
 // scanning.
-CUDA_ADDITIONAL_CLEAN_FILES:INTERNAL=/home/user/repos/Two_body_project/build/CMakeFiles/my_project.dir/src/my_project_generated_kernel.cu.o.depend
+CUDA_ADDITIONAL_CLEAN_FILES:INTERNAL=/home/user/repos/Two_body_project/build/CMakeFiles/my_project.dir/src/my_project_generated_kernel.cu.o.depend;/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.depend
 //ADVANCED property for variable: CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE
 CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_BUILD_CUBIN

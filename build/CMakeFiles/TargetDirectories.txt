@@ -1,3 +1,3 @@
-/home/user/repos/Two_body_project/build/CMakeFiles/my_project.dir
+/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir
 /home/user/repos/Two_body_project/build/CMakeFiles/edit_cache.dir
 /home/user/repos/Two_body_project/build/CMakeFiles/rebuild_cache.dir

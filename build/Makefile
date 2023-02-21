@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named my_project
+# Target rules for targets named two_body.exe
 
 # Build rule for target.
-my_project: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 my_project
-.PHONY : my_project
+two_body.exe: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 two_body.exe
+.PHONY : two_body.exe
 
 # fast build rule for target.
-my_project/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_project.dir/build.make CMakeFiles/my_project.dir/build
-.PHONY : my_project/fast
+two_body.exe/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/two_body.exe.dir/build.make CMakeFiles/two_body.exe.dir/build
+.PHONY : two_body.exe/fast
 
 # Help Target
 help:
@@ -137,7 +137,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... my_project"
+	@echo "... two_body.exe"
 .PHONY : help
 
 
