@@ -6,7 +6,9 @@
 
 #define N 2 // number of bodies
 #define dt 0.01 // time step
-#define steps 1000 // number of steps
+#define steps 10000 // number of steps
+
+constexpr int THREAD_PER_BLOCK = 128;
 
 struct Body {
   float x, y, z; // position

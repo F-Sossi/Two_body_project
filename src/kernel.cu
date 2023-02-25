@@ -33,7 +33,7 @@
 #define SIMULATION_COUNT 100
 #define DEBUG
 
-void display(Body* bodies);
+
 
 int main(int argc, char** argv) {
 
@@ -63,40 +63,43 @@ int main(int argc, char** argv) {
     cudaMalloc((void **)&dev_bodies, N * sizeof(Body));
     cudaMemcpy(dev_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
 
-    int blockSize = 256;
-    int numBlocks = (N + blockSize - 1) / blockSize;
+	const int num_blocks = (steps + THREAD_PER_BLOCK - 1) / THREAD_PER_BLOCK;
+	const int max_blocks = 32767;
+	const int blocks = std::min(num_blocks, max_blocks);
+	dim3 grid(blocks, 1, 1);
+	dim3 block(THREAD_PER_BLOCK, 1, 1);
 
     for (int i = 0; i < SIMULATION_COUNT; i++) {
 
-    simulate<<<numBlocks, blockSize>>>(dev_bodies);
+        simulate<<<grid, block>>>(dev_bodies);
 
-    cudaMemcpy(bodies, dev_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
+        cudaMemcpy(bodies, dev_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
 
-    #ifdef DEBUG
+        #ifdef DEBUG
 
-    // Display the result
-    for (int i = 0; i < N; i++) {
-        std::cout << "Body " << i << ": " << std::endl;
-        std::cout << "x = " << bodies[i].x << std::endl;
-        std::cout << "y = " << bodies[i].y << std::endl;
-        std::cout << "z = " << bodies[i].z << std::endl;
-        std::cout << "vx = " << bodies[i].vx << std::endl;
-        std::cout << "vy = " << bodies[i].vy << std::endl;
-        std::cout << "vz = " << bodies[i].vz << std::endl;
-        std::cout << "m = " << bodies[i].m << std::endl;
-    }
+        // Display the result
+        for (int i = 0; i < N; i++) {
+            std::cout << "Body " << i << ": " << std::endl;
+            std::cout << "x = " << bodies[i].x << std::endl;
+            std::cout << "y = " << bodies[i].y << std::endl;
+            std::cout << "z = " << bodies[i].z << std::endl;
+            std::cout << "vx = " << bodies[i].vx << std::endl;
+            std::cout << "vy = " << bodies[i].vy << std::endl;
+            std::cout << "vz = " << bodies[i].vz << std::endl;
+            std::cout << "m = " << bodies[i].m << std::endl;
+        }
 
-    #endif
+        #endif
 
-    // Save the positions to the vector
-    std::vector<float> pos;
-        pos.push_back(bodies[0].x);
-        pos.push_back(bodies[0].y);
-        pos.push_back(bodies[0].z);
-        pos.push_back(bodies[1].x);
-        pos.push_back(bodies[1].y);
-        pos.push_back(bodies[1].z);
-        positions.push_back(pos);
+        // Save the positions to the vector
+        std::vector<float> pos;
+            pos.push_back(bodies[0].x);
+            pos.push_back(bodies[0].y);
+            pos.push_back(bodies[0].z);
+            pos.push_back(bodies[1].x);
+            pos.push_back(bodies[1].y);
+            pos.push_back(bodies[1].z);
+            positions.push_back(pos);
     }
 
 
