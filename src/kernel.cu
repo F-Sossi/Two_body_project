@@ -14,10 +14,12 @@
 // make
 // ./my_project
 // 
-// To compile: nvcc kernel.cu -o tbp.exe -lGL -lGLU -lglut
-// To run: ./lab3
-// Note: install glut and opengl libraries
-// sudo apt-get install mesa-common-dev libglu1-mesa-dev freeglut3-dev
+// To compile: 
+//    cd build
+//    make
+// To run:
+//    ./two_body.exe
+//
 //---------------------------------------------------------------------------
 #include <iostream>
 #include <vector>
@@ -36,35 +38,35 @@ void display(Body* bodies);
 int main(int argc, char** argv) {
 
 
-  // Initialize bodies
-  Body bodies[N];
+    // Initialize bodies
+    Body bodies[N];
 
-  bodies[0].x = 0.0f;
-  bodies[0].y = 0.0f;
-  bodies[0].z = 0.0f;
-  bodies[0].vx = 0.0f;
-  bodies[0].vy = 0.0f;
-  bodies[0].vz = 0.0f;
-  bodies[0].m = 1.0f;
+    bodies[0].x = 0.0f;
+    bodies[0].y = 0.0f;
+    bodies[0].z = 0.0f;
+    bodies[0].vx = 0.0f;
+    bodies[0].vy = 0.0f;
+    bodies[0].vz = 0.0f;
+    bodies[0].m = 1.0f;
 
-  bodies[1].x = 1.0f;
-  bodies[1].y = 0.0f;
-  bodies[1].z = 0.0f;
-  bodies[1].vx = 0.0f;
-  bodies[1].vy = 1.0f;
-  bodies[1].vz = 0.0f;
-  bodies[1].m = 1.0f;
+    bodies[1].x = 1.0f;
+    bodies[1].y = 0.0f;
+    bodies[1].z = 0.0f;
+    bodies[1].vx = 0.0f;
+    bodies[1].vy = 1.0f;
+    bodies[1].vz = 0.0f;
+    bodies[1].m = 1.0f;
 
-  std::vector<std::vector<float>> positions;
-  
-  Body *dev_bodies;
-  cudaMalloc((void **)&dev_bodies, N * sizeof(Body));
-  cudaMemcpy(dev_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
+    std::vector<std::vector<float>> positions;
 
-  int blockSize = 256;
-  int numBlocks = (N + blockSize - 1) / blockSize;
+    Body *dev_bodies;
+    cudaMalloc((void **)&dev_bodies, N * sizeof(Body));
+    cudaMemcpy(dev_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
 
-  for (int i = 0; i < SIMULATION_COUNT; i++) {
+    int blockSize = 256;
+    int numBlocks = (N + blockSize - 1) / blockSize;
+
+    for (int i = 0; i < SIMULATION_COUNT; i++) {
 
     simulate<<<numBlocks, blockSize>>>(dev_bodies);
 
@@ -88,14 +90,14 @@ int main(int argc, char** argv) {
 
     // Save the positions to the vector
     std::vector<float> pos;
-    pos.push_back(bodies[0].x);
-    pos.push_back(bodies[0].y);
-    pos.push_back(bodies[0].z);
-    pos.push_back(bodies[1].x);
-    pos.push_back(bodies[1].y);
-    pos.push_back(bodies[1].z);
-    positions.push_back(pos);
-  }
+        pos.push_back(bodies[0].x);
+        pos.push_back(bodies[0].y);
+        pos.push_back(bodies[0].z);
+        pos.push_back(bodies[1].x);
+        pos.push_back(bodies[1].y);
+        pos.push_back(bodies[1].z);
+        positions.push_back(pos);
+    }
 
 
     cudaFree(dev_bodies);
