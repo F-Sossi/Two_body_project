@@ -72,16 +72,13 @@ include CMakeFiles/two_body.exe.dir/flags.make
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/kernel.cu
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/kernel.cu
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/two_body.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/viewer.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/freeglut_std.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/gl.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glext.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glu.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glut.h
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/KHR/khrplatform.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/alloca.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/bitsperlong.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno-base.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/int-ll64.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/posix_types.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/types.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/assert.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/backward/binders.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bit
@@ -203,12 +200,116 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/errno.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/features-time64.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/features.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/inttypes.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/limits.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/close_range.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/errno.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/limits.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/posix_types.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/stat.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/stddef.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/linux/types.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/locale.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/math.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/pthread.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/Python.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/abstract.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/bltinmodule.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/boolobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/bytearrayobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/bytesobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cellobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/ceval.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/classobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/code.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/codecs.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/compile.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/complexobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/context.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/abstract.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/bytearrayobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/bytesobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/ceval.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/code.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/compile.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/dictobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/fileobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/fileutils.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/import.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/initconfig.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/listobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/methodobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/object.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/objimpl.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/odictobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/picklebufobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pyctype.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pydebug.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pyerrors.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pyfpe.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pylifecycle.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pymem.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pystate.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pythonrun.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/pytime.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/sysmodule.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/traceback.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/tupleobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/cpython/unicodeobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/descrobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/dictobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/enumobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/eval.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/exports.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/fileobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/fileutils.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/floatobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/funcobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/genericaliasobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/genobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/import.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/intrcheck.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/iterobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/listobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/longintrepr.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/longobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/memoryobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/methodobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/modsupport.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/moduleobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/namespaceobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/object.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/objimpl.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/osmodule.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/patchlevel.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pycapsule.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pyconfig.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pyerrors.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pyframe.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pyhash.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pylifecycle.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pymacconfig.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pymacro.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pymath.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pymem.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pyport.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pystate.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pystrcmp.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pystrtod.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pythonrun.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/pythread.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/rangeobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/setobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/sliceobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/structseq.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/sysmodule.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/traceback.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/tracemalloc.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/tupleobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/typeslots.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/unicodeobject.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/warnings.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/python3.10/weakrefobject.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/sched.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/stdc-predef.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/stdint.h
@@ -217,20 +318,29 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/string.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/strings.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/time.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/unistd.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/wchar.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/wctype.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/asm/bitsperlong.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/asm/errno.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/asm/posix_types.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/asm/posix_types_64.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/asm/types.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/byteswap.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/confname.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/cpu-set.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/endian.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/endianness.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/environments.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/errno.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/floatn-common.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/floatn.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/fp-fast.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/fp-logb.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/getopt_core.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/getopt_posix.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/iscanonical.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
@@ -243,18 +353,23 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/mathcalls.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/posix1_lim.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/posix2_lim.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/posix_opt.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/sched.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/select.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/setjmp.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/stat.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/statx-generic.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/statx.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/stdint-intn.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/struct_mutex.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/struct_stat.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/time.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/time64.h
@@ -279,6 +394,8 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h
@@ -288,6 +405,7 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/typesizes.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/uio_lim.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/unistd_ext.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/waitflags.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/waitstatus.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/wchar.h
@@ -308,9 +426,12 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/gnu/stubs.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/python3.10/pyconfig.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/cdefs.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/select.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/single_threaded.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/stat.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/time.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/sys/types.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/lib/gcc/x86_64-linux-gnu/12/include/limits.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/lib/gcc/x86_64-linux-gnu/12/include/stdarg.h
@@ -383,20 +504,14 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: CMakeFiles/t
 	cd /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src && /usr/bin/cmake -E make_directory /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/.
 	cd /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src && /usr/bin/cmake -D verbose:BOOL=$(VERBOSE) -D build_configuration:STRING= -D generated_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/./two_body.exe_generated_kernel.cu.o -D generated_cubin_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/./two_body.exe_generated_kernel.cu.o.cubin.txt -P /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.cmake
 
-CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o: CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/user/repos/Two_body_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building NVCC intermediate link file CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o"
-	/usr/local/cuda-12.0/bin/nvcc " -arch=sm_86" -m64 -ccbin /usr/bin/cc -dlink /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/./two_body.exe_generated_kernel.cu.o -o /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/./two_body.exe_intermediate_link.o
-
 # Object files for target two_body.exe
 two_body_exe_OBJECTS =
 
 # External object files for target two_body.exe
 two_body_exe_EXTERNAL_OBJECTS = \
-"/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o" \
-"/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o"
+"/home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o"
 
 two_body.exe: CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o
-two_body.exe: CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o
 two_body.exe: CMakeFiles/two_body.exe.dir/build.make
 two_body.exe: /usr/local/cuda-12.0/lib64/libcudart_static.a
 two_body.exe: /usr/lib/x86_64-linux-gnu/librt.a
@@ -404,8 +519,9 @@ two_body.exe: /usr/lib/x86_64-linux-gnu/libOpenGL.so
 two_body.exe: /usr/lib/x86_64-linux-gnu/libGLX.so
 two_body.exe: /usr/lib/x86_64-linux-gnu/libGLU.so
 two_body.exe: /usr/lib/x86_64-linux-gnu/libglut.so
+two_body.exe: /usr/lib/x86_64-linux-gnu/libpython3.10.so
 two_body.exe: CMakeFiles/two_body.exe.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/user/repos/Two_body_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable two_body.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/user/repos/Two_body_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable two_body.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/two_body.exe.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -417,7 +533,6 @@ CMakeFiles/two_body.exe.dir/clean:
 .PHONY : CMakeFiles/two_body.exe.dir/clean
 
 CMakeFiles/two_body.exe.dir/depend: CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o
-CMakeFiles/two_body.exe.dir/depend: CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o
 	cd /home/user/repos/Two_body_project/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/user/repos/Two_body_project /home/user/repos/Two_body_project /home/user/repos/Two_body_project/build /home/user/repos/Two_body_project/build /home/user/repos/Two_body_project/build/CMakeFiles/two_body.exe.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/two_body.exe.dir/depend
 
