@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o"
+  "CMakeFiles/two_body.exe.dir/two_body.exe_intermediate_link.o"
   "two_body.exe"
   "two_body.exe.pdb"
 )

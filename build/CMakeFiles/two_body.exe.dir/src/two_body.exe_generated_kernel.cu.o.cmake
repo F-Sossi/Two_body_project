@@ -79,10 +79,10 @@ set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )
 set(CUDA_NVCC_FLAGS_RELEASE  ; )
 set(CUDA_NVCC_FLAGS_RELWITHDEBINFO  ; )
 set(nvcc_flags -m64) # list
-set(CUDA_NVCC_INCLUDE_DIRS [==[/usr/local/cuda-12.0/include;/usr/local/cuda-12.0/include;/usr/include]==]) # list (needs to be in lua quotes to address backslashes)
+set(CUDA_NVCC_INCLUDE_DIRS [==[/usr/local/cuda-12.0/include;/usr/local/cuda-12.0/include;/usr/include;/usr/local/cuda-12.0/include]==]) # list (needs to be in lua quotes to address backslashes)
 string(REPLACE "\\" "/" CUDA_NVCC_INCLUDE_DIRS "${CUDA_NVCC_INCLUDE_DIRS}")
 set(CUDA_NVCC_COMPILE_DEFINITIONS [==[]==]) # list (needs to be in lua quotes see #16510 ).
-set(format_flag "-c") # string
+set(format_flag "-dc") # string
 set(cuda_language_flag ) # list
 
 # Clean up list of include directories and add -I flags
