@@ -1,71 +1,51 @@
-//---------------------------------------------------------------------------
-// two_body.h - Header file for two body problem
-// Author: Frank Sossi
-// 
-// File contains: 
-//     1. Class for Body - contains position, velocity, and mass of a body
-//     2. Class for TwoBodyProblem - contains two bodies and a time step
-// 
-//---------------------------------------------------------------------------
 #pragma once
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+
+#include <cuda_runtime.h>
+#include <iostream>
 #include <math.h>
-#include <vector>
-#include <fstream>
-#include <chrono>
 
-#define DEBUG
+#define N 2 // number of bodies
+#define dt 0.01 // time step
+#define steps 1000 // number of steps
 
-// Size of the vector
-constexpr int n = 10;
-constexpr int THREAD_PER_BLOCK = 32;
-constexpr int BLOCK_SIZE = 32;
-
-//---------------------------------------------------------------------------
-// Class for Body - contains position, velocity, and mass of a body
-// input - position, velocity, and mass
-//---------------------------------------------------------------------------
-class Body {
-public:
-  std::vector<float> position;
-  std::vector<float> velocity;
-  float mass;
-
-  __device__ void initialize(std::vector<float> pos, std::vector<float> vel, float m) {
-    position = pos;
-    velocity = vel;
-    mass = m;
-  }
-
-  __device__ void computeForce(Body otherBody) {
-    // Compute the force between this body and the other body.
-  }
-
-  __device__ void updatePosition(float dt) {
-    // Update the position of this body based on its velocity and the time step.
-  }
-
-  __device__ void updateVelocity(float dt) {
-    // Update the velocity of this body based on the force and the time step.
-  }
+struct Body {
+  float x, y, z; // position
+  float vx, vy, vz; // velocity
+  float m; // mass
 };
 
-class TwoBodyProblem {
-public:
-  Body body1;
-  Body body2;
-  float dt;
-
-  __device__ void initialize(std::vector<float> pos1, std::vector<float> vel1, float m1, std::vector<float> pos2, std::vector<float> vel2, float m2, float timeStep) {
-    body1.initialize(pos1, vel1, m1);
-    body2.initialize(pos2, vel2, m2);
-    dt = timeStep;
+__global__ void simulate(Body *bodies) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= N) return;
+  
+  for (int step = 0; step < steps; step++) {
+    // Calculate the gravitational force between the two bodies
+    float dx = bodies[1].x - bodies[0].x;
+    float dy = bodies[1].y - bodies[0].y;
+    float dz = bodies[1].z - bodies[0].z;
+    float distance = sqrt(dx * dx + dy * dy + dz * dz);
+    float force = bodies[0].m * bodies[1].m / (distance * distance);
+    
+    // Update the velocities of the two bodies
+    bodies[0].vx -= force * dx / distance * dt / bodies[0].m;
+    bodies[0].vy -= force * dy / distance * dt / bodies[0].m;
+    bodies[0].vz -= force * dz / distance * dt / bodies[0].m;
+    bodies[1].vx += force * dx / distance * dt / bodies[1].m;
+    bodies[1].vy += force * dy / distance * dt / bodies[1].m;
+    bodies[1].vz += force * dz / distance * dt / bodies[1].m;
+    
+    // Update the positions of the two bodies
+    bodies[0].x += bodies[0].vx * dt;
+    bodies[0].y += bodies[0].vy * dt;
+    bodies[0].z += bodies[0].vz * dt;
+    bodies[1].x += bodies[1].vx * dt;
+    bodies[1].y += bodies[1].vy * dt;
+    bodies[1].z += bodies[1].vz * dt;
   }
+}
 
-  void simulate() {
-    // Simulate the two-body problem on the GPU.
-  }
-};
+
+
+
 
 
