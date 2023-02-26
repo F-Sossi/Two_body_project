@@ -94,7 +94,7 @@ __global__ void allPairsKernel(Body* bodies, int N, float dt) {
 }
 
 int main() {
-    int N = 1000; // number of bodies
+    int N = 5000; // number of bodies
     int threadsPerBlock = 32;
 
     // Allocate memory on the host for the array of bodies
