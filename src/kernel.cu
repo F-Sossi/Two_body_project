@@ -116,14 +116,17 @@ int main() {
     // Launch the kernel on the device
     dim3 blocksPerGrid((N + threadsPerBlock - 1) / threadsPerBlock, (N + threadsPerBlock - 1) / threadsPerBlock);
     float dt = 0.01f;
-    allPairsKernel<<<blocksPerGrid, dim3(threadsPerBlock, threadsPerBlock)>>>(d_bodies, N, dt);
+    for (int step = 0; step < 100; step++) {
+        allPairsKernel<<<blocksPerGrid, dim3(threadsPerBlock, threadsPerBlock)>>>(d_bodies, N, dt);
+        // Copy the updated array of bodies from the device to the host
+        cudaMemcpy(bodies, d_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
 
-    // Copy the updated array of bodies from the device to the host
-    cudaMemcpy(bodies, d_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
-
-    // Print the position and velocity of the first body
-    std::cout << "Position: (" << bodies[0].position.x << ", " << bodies[0].position.y << ", " << bodies[0].position.z << ")" << std::endl;
-    std::cout << "Velocity: (" << bodies[0].velocity.x << ", " << bodies[0].velocity.y << ", " << bodies[0].velocity.z << ")" << std::endl;
+        // Print the position and velocity of each body
+        std::cout << "Step " << step << std::endl;
+        for (int i = 0; i < N; i++) {
+            std::cout << "Body " << i << ": Position(" << bodies[i].position.x << ", " << bodies[i].position.y << ", " << bodies[i].position.z << "), Velocity(" << bodies[i].velocity.x << ", " << bodies[i].velocity.y << ", " << bodies[i].velocity.z << ")" << std::endl;
+        }
+    }
 
     // Free the memory on the host and device
     delete[] bodies;
@@ -131,6 +134,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
