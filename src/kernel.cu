@@ -22,91 +22,118 @@
 //
 //---------------------------------------------------------------------------
 #include <iostream>
-#include <vector>
-#include <random>
 #include <cuda_runtime.h>
-#include <cublas_v2.h>
-#include "device_launch_parameters.h"
+#include <device_launch_parameters.h>
+#include "cuda_runtime_api.h"
 #include "two_body.h"
-#include <Python.h>
-
-#define SIMULATION_COUNT 100
-#define DEBUG
 
 
+struct Vec3 {
+    float x;
+    float y;
+    float z;
 
-int main(int argc, char** argv) {
-
-
-    // Initialize bodies
-    Body bodies[N];
-
-    bodies[0].x = 0.0f;
-    bodies[0].y = 0.0f;
-    bodies[0].z = 0.0f;
-    bodies[0].vx = 0.0f;
-    bodies[0].vy = 0.0f;
-    bodies[0].vz = 0.0f;
-    bodies[0].m = 1.0f;
-
-    bodies[1].x = 1.0f;
-    bodies[1].y = 0.0f;
-    bodies[1].z = 0.0f;
-    bodies[1].vx = 0.0f;
-    bodies[1].vy = 1.0f;
-    bodies[1].vz = 0.0f;
-    bodies[1].m = 1.0f;
-
-    std::vector<std::vector<float>> positions;
-
-    Body *dev_bodies;
-    cudaMalloc((void **)&dev_bodies, N * sizeof(Body));
-    cudaMemcpy(dev_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
-
-	const int num_blocks = (steps + THREAD_PER_BLOCK - 1) / THREAD_PER_BLOCK;
-	const int max_blocks = 32767;
-	const int blocks = std::min(num_blocks, max_blocks);
-	dim3 grid(blocks, 1, 1);
-	dim3 block(THREAD_PER_BLOCK, 1, 1);
-
-    for (int i = 0; i < SIMULATION_COUNT; i++) {
-
-        simulate<<<grid, block>>>(dev_bodies);
-
-        cudaMemcpy(bodies, dev_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
-
-        #ifdef DEBUG
-
-        // Display the result
-        for (int i = 0; i < N; i++) {
-            std::cout << "Body " << i << ": " << std::endl;
-            std::cout << "x = " << bodies[i].x << std::endl;
-            std::cout << "y = " << bodies[i].y << std::endl;
-            std::cout << "z = " << bodies[i].z << std::endl;
-            std::cout << "vx = " << bodies[i].vx << std::endl;
-            std::cout << "vy = " << bodies[i].vy << std::endl;
-            std::cout << "vz = " << bodies[i].vz << std::endl;
-            std::cout << "m = " << bodies[i].m << std::endl;
-        }
-
-        #endif
-
-        // Save the positions to the vector
-        std::vector<float> pos;
-            pos.push_back(bodies[0].x);
-            pos.push_back(bodies[0].y);
-            pos.push_back(bodies[0].z);
-            pos.push_back(bodies[1].x);
-            pos.push_back(bodies[1].y);
-            pos.push_back(bodies[1].z);
-            positions.push_back(pos);
+    __device__ Vec3 operator+(const Vec3& other) const {
+        return { x + other.x, y + other.y, z + other.z };
     }
 
+    __device__ Vec3 operator-(const Vec3& other) const {
+        return { x - other.x, y - other.y, z - other.z };
+    }
 
-    cudaFree(dev_bodies);
+    __device__ Vec3 operator*(float scalar) const {
+        return { x * scalar, y * scalar, z * scalar };
+    }
+
+    __device__ Vec3 operator/(float scalar) const {
+        return { x / scalar, y / scalar, z / scalar };
+    }
+
+    __device__ float dot(const Vec3& other) const {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    __device__ float length() const {
+        return sqrtf(x * x + y * y + z * z);
+    }
+
+    __device__ Vec3 normalized() const {
+        float len = length();
+        return { x / len, y / len, z / len };
+    }
+};
+
+struct Body {
+    Vec3 position;
+    Vec3 velocity;
+};
+
+__device__ void updateBodyVelocity(Body& body, const Vec3& force, float dt, float sign) {
+    body.velocity = body.velocity + force * dt * sign;
+}
+
+
+__device__ Vec3 computeForce(const Body& a, const Body& b) {
+    Vec3 r = b.position - a.position;
+    float r2 = r.dot(r);
+    float r3 = r2 * sqrtf(r2);
+    return r / r3;
+}
+
+__global__ void allPairsKernel(Body* bodies, int N, float dt) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (i < N && j < N && i < j) {
+        const Body& a = bodies[i];
+        const Body& b = bodies[j];
+        Vec3 force = computeForce(a, b);
+        updateBodyVelocity(bodies[i], force, dt, 1.0f);
+        updateBodyVelocity(bodies[j], force, dt, -1.0f);
+    }
+}
+
+int main() {
+    int N = 1000; // number of bodies
+    int threadsPerBlock = 32;
+
+    // Allocate memory on the host for the array of bodies
+    Body* bodies = new Body[N];
+
+    // Initialize the position and velocity of each body
+    for (int i = 0; i < N; i++) {
+        bodies[i].position = { static_cast<float>(rand()), static_cast<float>(rand()), static_cast<float>(rand()) };
+        bodies[i].velocity = { static_cast<float>(rand()), static_cast<float>(rand()), static_cast<float>(rand()) };
+    }
+
+    // Allocate memory on the device for the array of bodies
+    Body* d_bodies;
+    cudaMalloc((void**)&d_bodies, N * sizeof(Body));
+
+    // Copy the array of bodies from the host to the device
+    cudaMemcpy(d_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
+
+    // Launch the kernel on the device
+    dim3 blocksPerGrid((N + threadsPerBlock - 1) / threadsPerBlock, (N + threadsPerBlock - 1) / threadsPerBlock);
+    float dt = 0.01f;
+    allPairsKernel<<<blocksPerGrid, dim3(threadsPerBlock, threadsPerBlock)>>>(d_bodies, N, dt);
+
+    // Copy the updated array of bodies from the device to the host
+    cudaMemcpy(bodies, d_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
+
+    // Print the position and velocity of the first body
+    std::cout << "Position: (" << bodies[0].position.x << ", " << bodies[0].position.y << ", " << bodies[0].position.z << ")" << std::endl;
+    std::cout << "Velocity: (" << bodies[0].velocity.x << ", " << bodies[0].velocity.y << ", " << bodies[0].velocity.z << ")" << std::endl;
+
+    // Free the memory on the host and device
+    delete[] bodies;
+    cudaFree(d_bodies);
 
     return 0;
 }
+
+
+
 
 
 
