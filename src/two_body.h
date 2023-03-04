@@ -43,9 +43,103 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 }
 
+// __global__
+// void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
+//                      float deltaTime, float damping, int numBodies) 
+// {
+//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+//     if (idx < numBodies) {
+//         float4 pos = oldPos[idx];
+//         float4 vel = oldVel[idx];
+//         float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+//         for (int i = 0; i < numBodies; i++) {
+//             if (i != idx) {
+//                 float4 pos2 = oldPos[i];
+//                 float4 delta = pos2 - pos;
+
+//                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+//                 float invDist = rsqrtf(distSqr + SOFTENING);
+
+//                 float s = powf(invDist, 3.0f);
+
+//                 accel.x += delta.x * s;
+//                 accel.y += delta.y * s;
+//                 accel.z += delta.z * s;
+//             }
+//         }
+
+//         // Update velocity using acceleration and damping
+//         vel.x += deltaTime * accel.x;
+//         vel.y += deltaTime * accel.y;
+//         vel.z += deltaTime * accel.z;
+
+//         vel.x *= damping;
+//         vel.y *= damping;
+//         vel.z *= damping;
+
+//         // Update position using velocity
+//         pos.x += vel.x * deltaTime;
+//         pos.y += vel.y * deltaTime;
+//         pos.z += vel.z * deltaTime;
+
+//         newPos[idx] = pos;
+//         newVel[idx] = vel;
+//     }
+// }
+
+// __global__
+// void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
+//                      float deltaTime, float damping, float mass, int numBodies) 
+// {
+//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+//     if (idx < numBodies) {
+//         float4 pos = oldPos[idx];
+//         float4 vel = oldVel[idx];
+//         float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+//         for (int i = 0; i < numBodies; i++) {
+//             if (i != idx) {
+//                 float4 pos2 = oldPos[i];
+//                 float4 delta = pos2 - pos;
+
+//                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+//                 if (distSqr < 10 * SOFTENING) { // only calculate gravity if particles are close enough
+//                     float invDist = rsqrtf(distSqr + SOFTENING);
+
+//                     float s = mass * powf(invDist, 3.0f);
+
+//                     accel.x += delta.x * s;
+//                     accel.y += delta.y * s;
+//                     accel.z += delta.z * s;
+//                 }
+//             }
+//         }
+
+//         // Update velocity using acceleration and damping
+//         vel.x += deltaTime * accel.x;
+//         vel.y += deltaTime * accel.y;
+//         vel.z += deltaTime * accel.z;
+
+//         vel.x *= damping;
+//         vel.y *= damping;
+//         vel.z *= damping;
+
+//         // Update position using velocity
+//         pos.x += vel.x * deltaTime;
+//         pos.y += vel.y * deltaTime;
+//         pos.z += vel.z * deltaTime;
+
+//         newPos[idx] = pos;
+//         newVel[idx] = vel;
+//     }
+// }
+
 __global__
-void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
-                     float deltaTime, float damping, int numBodies) 
+void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel,
+                     float deltaTime, float damping, float mass, int numBodies)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -54,19 +148,26 @@ void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* old
         float4 vel = oldVel[idx];
         float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-        for (int i = 0; i < numBodies; i++) {
+        // Determine the starting index and stride for this thread
+        int start = idx;
+        int stride = gridDim.x * blockDim.x;
+
+        // Loop over the chunk of memory that this thread is responsible for
+        for (int i = start; i < numBodies; i += stride) {
             if (i != idx) {
                 float4 pos2 = oldPos[i];
                 float4 delta = pos2 - pos;
 
                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                float invDist = rsqrtf(distSqr + SOFTENING);
+                if (distSqr < 10 * SOFTENING) { // only calculate gravity if particles are close enough
+                    float invDist = rsqrtf(distSqr + SOFTENING);
 
-                float s = powf(invDist, 3.0f);
+                    float s = mass * powf(invDist, 3.0f);
 
-                accel.x += delta.x * s;
-                accel.y += delta.y * s;
-                accel.z += delta.z * s;
+                    accel.x += delta.x * s;
+                    accel.y += delta.y * s;
+                    accel.z += delta.z * s;
+                }
             }
         }
 
@@ -89,6 +190,8 @@ void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* old
     }
 }
 
+
+
 void integrateNbodySystem(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
                           float deltaTime, float damping, int numBodies, int p, int q,
                           float* dPos, float* dVel)
@@ -97,7 +200,7 @@ void integrateNbodySystem(float4* newPos, float4* newVel, float4* oldPos, float4
     int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
 
     integrateBodies<<<numBlocks, threadsPerBlock>>>(newPos, newVel, oldPos, oldVel, 
-                                                     deltaTime, damping, numBodies);
+                                                     deltaTime, damping, 1, numBodies);
 
     // Swap old and new position/velocity arrays
     float4* temp = oldPos;
