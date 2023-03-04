@@ -21,120 +21,54 @@
 //    ./two_body.exe
 //
 //---------------------------------------------------------------------------
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include "cuda_runtime_api.h"
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <cuda_gl_interop.h>
 #include "two_body.h"
 
 
-struct Vec3 {
-    float x;
-    float y;
-    float z;
-
-    __device__ Vec3 operator+(const Vec3& other) const {
-        return { x + other.x, y + other.y, z + other.z };
-    }
-
-    __device__ Vec3 operator-(const Vec3& other) const {
-        return { x - other.x, y - other.y, z - other.z };
-    }
-
-    __device__ Vec3 operator*(float scalar) const {
-        return { x * scalar, y * scalar, z * scalar };
-    }
-
-    __device__ Vec3 operator/(float scalar) const {
-        return { x / scalar, y / scalar, z / scalar };
-    }
-
-    __device__ float dot(const Vec3& other) const {
-        return x * other.x + y * other.y + z * other.z;
-    }
-
-    __device__ float length() const {
-        return sqrtf(x * x + y * y + z * z);
-    }
-
-    __device__ Vec3 normalized() const {
-        float len = length();
-        return { x / len, y / len, z / len };
-    }
-};
-
-struct Body {
-    Vec3 position;
-    Vec3 velocity;
-};
-
-__device__ void updateBodyVelocity(Body& body, const Vec3& force, float dt, float sign) {
-    body.velocity = body.velocity + force * dt * sign;
-}
 
 
-__device__ Vec3 computeForce(const Body& a, const Body& b) {
-    Vec3 r = b.position - a.position;
-    float r2 = r.dot(r);
-    float r3 = r2 * sqrtf(r2);
-    return r / r3;
-}
+int main()
+{
+    const int numIterations = 10;
+    const int numBodiesOptions[] = {1024, 2048, 4096, 8192};
+    const int numBodiesOptionCount = sizeof(numBodiesOptions) / sizeof(numBodiesOptions[0]);
+    const int p = 256;
+    const int q = 1;
+    const float deltaTime = 0.1;
+    const float damping = 0.95;
 
-__global__ void allPairsKernel(Body* bodies, int N, float dt) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    int numBodies = 5120;
 
-    if (i < N && j < N && i < j) {
-        const Body& a = bodies[i];
-        const Body& b = bodies[j];
-        Vec3 force = computeForce(a, b);
-        updateBodyVelocity(bodies[i], force, dt, 1.0f);
-        updateBodyVelocity(bodies[j], force, dt, -1.0f);
-    }
-}
+    // // Prompt the user to select an option and loop until a valid option is entered
+    // int option = 0;
+    // while (option < 1 || option > numBodiesOptionCount) {
+    //     printf("Select an option:\n");
+    //     printf("1. %d bodies\n", numBodiesOptions[0]);
+    //     printf("2. %d bodies\n", numBodiesOptions[1]);
+    //     printf("3. %d bodies\n", numBodiesOptions[2]);
+    //     printf("4. %d bodies\n", numBodiesOptions[3]);
+    //     if (scanf("%d", &option) != 1 || option < 1 || option > numBodiesOptionCount) {
+    //         printf("Invalid input. Please select a valid option.\n");
+    //     }
+    // }
 
-int main() {
-    int N = 5000; // number of bodies
-    int threadsPerBlock = 32;
+    // // Get the number of bodies from the selected option
+    // int numBodies = numBodiesOptions[option - 1];
 
-    // Allocate memory on the host for the array of bodies
-    Body* bodies = new Body[N];
+    // print the user's inputs
+    //printf("Number of bodies: %d \t Number of iterations: %d \t p: %d \t q: %d  \n", numBodies, numIterations, p, q);
 
-    // Initialize the position and velocity of each body
-    for (int i = 0; i < N; i++) {
-        bodies[i].position = { static_cast<float>(rand()), static_cast<float>(rand()), static_cast<float>(rand()) };
-        bodies[i].velocity = { static_cast<float>(rand()), static_cast<float>(rand()), static_cast<float>(rand()) };
-    }
-
-    // Allocate memory on the device for the array of bodies
-    Body* d_bodies;
-    cudaMalloc((void**)&d_bodies, N * sizeof(Body));
-
-    // Copy the array of bodies from the host to the device
-    cudaMemcpy(d_bodies, bodies, N * sizeof(Body), cudaMemcpyHostToDevice);
-
-    // Launch the kernel on the device
-    dim3 blocksPerGrid((N + threadsPerBlock - 1) / threadsPerBlock, (N + threadsPerBlock - 1) / threadsPerBlock);
-    float dt = 0.01f;
-    for (int step = 0; step < 100; step++) {
-        allPairsKernel<<<blocksPerGrid, dim3(threadsPerBlock, threadsPerBlock)>>>(d_bodies, N, dt);
-        // Copy the updated array of bodies from the device to the host
-        cudaMemcpy(bodies, d_bodies, N * sizeof(Body), cudaMemcpyDeviceToHost);
-
-        // Print the position and velocity of each body
-        std::cout << "Step " << step << std::endl;
-        for (int i = 0; i < N; i++) {
-            std::cout << "Body " << i << ": Position(" << bodies[i].position.x << ", " << bodies[i].position.y << ", " << bodies[i].position.z << "), Velocity(" << bodies[i].velocity.x << ", " << bodies[i].velocity.y << ", " << bodies[i].velocity.z << ")" << std::endl;
-        }
-    }
-
-    // Free the memory on the host and device
-    delete[] bodies;
-    cudaFree(d_bodies);
+    // Call the simulation function with the user's inputs
+    simulateNbodySystem(numBodies, numIterations, p, q, deltaTime, damping);
 
     return 0;
 }
-
 
 
 

@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+def update_plot(num):
+    ax.cla()
+    ax.set_xlim3d(-200, 200)
+    ax.set_ylim3d(-200, 200)
+    ax.set_zlim3d(-200, 200)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    
+    # Plot particle positions at current time step
+    x = positions[num][:, 0]
+    y = positions[num][:, 1]
+    z = positions[num][:, 2]
+    #ax.scatter(x, y, z, c='b')
+    ax.scatter(x, y, z, c='b', s=10)
+    
+    # Set title to current time step
+    ax.set_title(f"Time step {num}")
+
+positions = []
+
+# Number of iterations
+numIterations = 10
+
+for i in range(numIterations):
+    # Load position data from file
+    filename = f"data/positions_{i}.txt"
+    data = np.loadtxt(filename)
+    
+    # Append data to list
+    positions.append(data)
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlim3d(-100, 100)
+ax.set_ylim3d(-100, 100)
+ax.set_zlim3d(-100, 100)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Plot initial particle positions
+x = positions[0][:, 0]
+y = positions[0][:, 1]
+z = positions[0][:, 2]
+ax.scatter(x, y, z, c='b')
+
+
+
+# Create animation object
+ani = FuncAnimation(fig, update_plot, frames=numIterations, interval=100)
+
+# Display animation
+plt.show()
+

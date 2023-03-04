@@ -72,6 +72,11 @@ include CMakeFiles/two_body.exe.dir/flags.make
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/kernel.cu
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/kernel.cu
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/two_body.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/freeglut_std.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/gl.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glew.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glu.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/GL/glut.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/alloca.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno-base.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno.h
@@ -85,6 +90,7 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/basic_string.tcc
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/char_traits.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/charconv.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/codecvt.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/concept_check.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/cpp_type_traits.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/cxxabi_forced.h
@@ -92,6 +98,7 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/exception.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/exception_defines.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/exception_ptr.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/fstream.tcc
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/functexcept.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/functional_hash.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/hash_bytes.h
@@ -133,6 +140,7 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cerrno
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/clocale
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cmath
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstddef
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdint
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdio
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdlib
@@ -146,10 +154,10 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/ext/numeric_traits.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/ext/string_conversions.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/ext/type_traits.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/fstream
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/initializer_list
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/ios
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/iosfwd
-CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/iostream
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/istream
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/limits
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/c++/12/math.h
@@ -274,8 +282,10 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/wordsize.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/bits/xopen_lim.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/atomic_word.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/c++allocator.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/c++config.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/c++locale.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/cpu_defines.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/ctype_base.h
@@ -314,6 +324,7 @@ CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/c
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/crt/sm_90_rt.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/crt/sm_90_rt.hpp
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_device_runtime_api.h
+CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_gl_interop.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_runtime.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_runtime_api.h
 CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/device_atomic_functions.h

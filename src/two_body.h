@@ -1,50 +1,177 @@
 #pragma once
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fstream>
+#include <cuda_runtime.h>
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <cuda_gl_interop.h>
 
-// #include <cuda_runtime.h>
-// #include <iostream>
-// #include <math.h>
+constexpr float SOFTENING = 0.00125f;
 
-// #define N 2 // number of bodies
-// #define dt 0.01 // time step
-// #define steps 10000 // number of steps
 
-// constexpr int THREAD_PER_BLOCK = 128;
 
-// // struct Body {
-// //   float x, y, z; // position
-// //   float vx, vy, vz; // velocity
-// //   float m; // mass
-// // };
+void initParticles(float* hPos, float* hVel, int numBodies) {
+    for (int i = 0; i < numBodies; i++) {
+        hPos[i * 4] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+        hPos[i * 4 + 1] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+        hPos[i * 4 + 2] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+        hPos[i * 4 + 3] = 1.0f;
+        hVel[i * 4] = 0.0f;
+        hVel[i * 4 + 1] = 0.0f;
+        hVel[i * 4 + 2] = 0.0f;
+        hVel[i * 4 + 3] = 0.0f;
+    }
+}
 
-// __global__ void simulate(Body *bodies) {
-//   int i = blockIdx.x * blockDim.x + threadIdx.x;
-//   if (i >= N) return;
-  
-//   for (int step = 0; step < steps; step++) {
-//     // Calculate the gravitational force between the two bodies
-//     float dx = bodies[1].x - bodies[0].x;
-//     float dy = bodies[1].y - bodies[0].y;
-//     float dz = bodies[1].z - bodies[0].z;
-//     float distance = sqrt(dx * dx + dy * dy + dz * dz);
-//     float force = bodies[0].m * bodies[1].m / (distance * distance);
-    
-//     // Update the velocities of the two bodies
-//     bodies[0].vx -= force * dx / distance * dt / bodies[0].m;
-//     bodies[0].vy -= force * dy / distance * dt / bodies[0].m;
-//     bodies[0].vz -= force * dz / distance * dt / bodies[0].m;
-//     bodies[1].vx += force * dx / distance * dt / bodies[1].m;
-//     bodies[1].vy += force * dy / distance * dt / bodies[1].m;
-//     bodies[1].vz += force * dz / distance * dt / bodies[1].m;
-    
-//     // Update the positions of the two bodies
-//     bodies[0].x += bodies[0].vx * dt;
-//     bodies[0].y += bodies[0].vy * dt;
-//     bodies[0].z += bodies[0].vz * dt;
-//     bodies[1].x += bodies[1].vx * dt;
-//     bodies[1].y += bodies[1].vy * dt;
-//     bodies[1].z += bodies[1].vz * dt;
-//   }
-// }
+__host__ __device__ float4 operator-(const float4& a, const float4& b)
+{
+    return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+
+__global__
+void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
+                     float deltaTime, float damping, int numBodies) 
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < numBodies) {
+        float4 pos = oldPos[idx];
+        float4 vel = oldVel[idx];
+        float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+        for (int i = 0; i < numBodies; i++) {
+            if (i != idx) {
+                float4 pos2 = oldPos[i];
+                float4 delta = pos2 - pos;
+
+                float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                float invDist = rsqrtf(distSqr + SOFTENING);
+
+                float s = powf(invDist, 3.0f);
+
+                accel.x += delta.x * s;
+                accel.y += delta.y * s;
+                accel.z += delta.z * s;
+            }
+        }
+
+        // Update velocity using acceleration and damping
+        vel.x += deltaTime * accel.x;
+        vel.y += deltaTime * accel.y;
+        vel.z += deltaTime * accel.z;
+
+        vel.x *= damping;
+        vel.y *= damping;
+        vel.z *= damping;
+
+        // Update position using velocity
+        pos.x += vel.x * deltaTime;
+        pos.y += vel.y * deltaTime;
+        pos.z += vel.z * deltaTime;
+
+        newPos[idx] = pos;
+        newVel[idx] = vel;
+    }
+}
+
+void integrateNbodySystem(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
+                          float deltaTime, float damping, int numBodies, int p, int q,
+                          float* dPos, float* dVel)
+{
+    int threadsPerBlock = p;
+    int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
+
+    integrateBodies<<<numBlocks, threadsPerBlock>>>(newPos, newVel, oldPos, oldVel, 
+                                                     deltaTime, damping, numBodies);
+
+    // Swap old and new position/velocity arrays
+    float4* temp = oldPos;
+    oldPos = newPos;
+    newPos = temp;
+
+    temp = oldVel;
+    oldVel = newVel;
+    newVel = temp;
+
+    // Copy updated position and velocity arrays back to device
+    cudaMemcpy(dPos, oldPos, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+    cudaMemcpy(dVel, oldVel, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+}
+
+void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
+    std::ofstream outFile("../data/" + std::string(fileName));
+    for (int i = 0; i < numBodies; i++) {
+        outFile << hPos[i * 4] << " " << hPos[i * 4 + 1] << " " << hPos[i * 4 + 2] << std::endl;
+    }
+    outFile.close();
+}
+
+
+
+void simulateNbodySystem(int numBodies, int numIterations, int p, int q, float deltaTime, float damping)
+{
+    // Allocate memory for particle data
+    float* hPos = new float[numBodies * 4];
+    float* hVel = new float[numBodies * 4];
+    float* dPos;
+    float* dVel;
+    cudaMalloc(&dPos, numBodies * sizeof(float4));
+    cudaMalloc(&dVel, numBodies * sizeof(float4));
+
+    // Initialize particle data
+    initParticles(hPos, hVel, numBodies);
+
+    // Copy particle data to device
+    cudaMemcpy(dPos, hPos, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+    cudaMemcpy(dVel, hVel, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+
+    // Initialize variables for N-body system integration
+    float4* newPos;
+    float4* newVel;
+    float4* oldPos;
+    float4* oldVel;
+    cudaMalloc(&newPos, numBodies * sizeof(float4));
+    cudaMalloc(&newVel, numBodies * sizeof(float4));
+    cudaMalloc(&oldPos, numBodies * sizeof(float4));
+    cudaMalloc(&oldVel, numBodies * sizeof(float4));
+    cudaMemcpy(oldPos, hPos, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+    cudaMemcpy(oldVel, hVel, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+
+    // Run simulation for the specified number of iterations
+    for (int i = 0; i < numIterations; i++) {
+        // Integrate the N-body system
+        integrateNbodySystem(newPos, newVel, oldPos, oldVel, deltaTime, damping, numBodies, p, q, dPos, dVel);
+
+        // Copy particle data back to host
+        cudaMemcpy(hPos, dPos, numBodies * sizeof(float4), cudaMemcpyDeviceToHost);
+        cudaMemcpy(hVel, dVel, numBodies * sizeof(float4), cudaMemcpyDeviceToHost);
+
+        // Write particle positions to file for visualization
+        char fileName[100];
+        sprintf(fileName, "positions_%d.txt", i);  // Create filename with current iteration number
+        writePositionDataToFile(hPos, numBodies, fileName);
+
+        // Print the positions of the first few particles for debugging purposes
+        for (int j = 0; j < 10; j++) {
+            printf("Particle %d position: (%f, %f, %f)\n", j, hPos[j * 4], hPos[j * 4 + 1], hPos[j * 4 + 2]);
+        }
+    }
+
+    // Cleanup
+    delete[] hPos;
+    delete[] hVel;
+    cudaFree(dPos);
+    cudaFree(dVel);
+    cudaFree(newPos);
+    cudaFree(newVel);
+    cudaFree(oldPos);
+    cudaFree(oldVel);
+
+}
+
+
 
 
 
