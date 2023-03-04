@@ -35,15 +35,15 @@
 
 int main()
 {
-    const int numIterations = 10;
+    const int numIterations = 1000;
     const int numBodiesOptions[] = {1024, 2048, 4096, 8192};
     const int numBodiesOptionCount = sizeof(numBodiesOptions) / sizeof(numBodiesOptions[0]);
-    const int p = 256;
+    const int p = 32;
     const int q = 1;
     const float deltaTime = 0.1;
     const float damping = 0.95;
 
-    int numBodies = 5120;
+    int numBodies = 1024;
 
     // // Prompt the user to select an option and loop until a valid option is entered
     // int option = 0;

@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import os
 
 def update_plot(num):
     ax.cla()
-    ax.set_xlim3d(-200, 200)
-    ax.set_ylim3d(-200, 200)
-    ax.set_zlim3d(-200, 200)
+    ax.set_xlim3d(-500, 500)
+    ax.set_ylim3d(-500, 500)
+    ax.set_zlim3d(-500, 500)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
@@ -23,12 +24,16 @@ def update_plot(num):
 
 positions = []
 
+
+# Get absolute path of directory containing the script
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 # Number of iterations
-numIterations = 10
+numIterations = 1000
 
 for i in range(numIterations):
     # Load position data from file
-    filename = f"data/positions_{i}.txt"
+    filename = os.path.join(dir_path, f"positions_{i}.txt")
     data = np.loadtxt(filename)
     
     # Append data to list
@@ -53,7 +58,7 @@ ax.scatter(x, y, z, c='b')
 
 
 # Create animation object
-ani = FuncAnimation(fig, update_plot, frames=numIterations, interval=100)
+ani = FuncAnimation(fig, update_plot, frames=numIterations, interval=1)
 
 # Display animation
 plt.show()

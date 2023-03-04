@@ -12,16 +12,29 @@ constexpr float SOFTENING = 0.00125f;
 
 
 
+// void initParticles(float* hPos, float* hVel, int numBodies) {
+//     for (int i = 0; i < numBodies; i++) {
+//         hPos[i * 4] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+//         hPos[i * 4 + 1] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+//         hPos[i * 4 + 2] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+//         hPos[i * 4 + 3] = 1.0f;
+//         hVel[i * 4] = 0.0f;
+//         hVel[i * 4 + 1] = 0.0f;
+//         hVel[i * 4 + 2] = 0.0f;
+//         hVel[i * 4 + 3] = 0.0f;
+//     }
+// }
+
 void initParticles(float* hPos, float* hVel, int numBodies) {
     for (int i = 0; i < numBodies; i++) {
-        hPos[i * 4] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-        hPos[i * 4 + 1] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-        hPos[i * 4 + 2] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+        hPos[i * 4] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
+        hPos[i * 4 + 1] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
+        hPos[i * 4 + 2] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
         hPos[i * 4 + 3] = 1.0f;
-        hVel[i * 4] = 0.0f;
-        hVel[i * 4 + 1] = 0.0f;
-        hVel[i * 4 + 2] = 0.0f;
-        hVel[i * 4 + 3] = 0.0f;
+        hVel[i * 4] = 1112.1f;
+        hVel[i * 4 + 1] = 1112.1f;
+        hVel[i * 4 + 2] = 1112.1f;
+        hVel[i * 4 + 3] = 1112.1f;
     }
 }
 
