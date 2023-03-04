@@ -38,9 +38,13 @@ int main()
     const int numIterations = 10;
     const int numBodiesOptions[] = {1024, 2048, 4096, 8192};
     const int numBodiesOptionCount = sizeof(numBodiesOptions) / sizeof(numBodiesOptions[0]);
+    // Threads per block
     const int p = 1024;
-    const int q = 1;
+
+    //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
     const float deltaTime = 0.1;
+
+    // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.95;
 
     int numBodies = 20480;
@@ -65,7 +69,7 @@ int main()
     //printf("Number of bodies: %d \t Number of iterations: %d \t p: %d \t q: %d  \n", numBodies, numIterations, p, q);
 
     // Call the simulation function with the user's inputs
-    simulateNbodySystem(numBodies, numIterations, p, q, deltaTime, damping);
+    simulateNbodySystem(numBodies, numIterations, p, deltaTime, damping);
 
     return 0;
 }

@@ -9,6 +9,8 @@
 #include <cuda_gl_interop.h>
 
 constexpr float SOFTENING = 0.00125f;
+const float GRAVITY_CONSTANT = 6.67430e-11f;
+
 
 
 
@@ -160,8 +162,10 @@ void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* old
 
                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                 if (distSqr < 10 * SOFTENING) { // only calculate gravity if particles are close enough
+                    
+                    // Calculate the force of gravity between the two particles reciprocal square root
                     float invDist = rsqrtf(distSqr + SOFTENING);
-
+                    // Calculate the force of gravity between the two particles
                     float s = mass * powf(invDist, 3.0f);
 
                     accel.x += delta.x * s;
@@ -193,7 +197,7 @@ void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* old
 
 
 void integrateNbodySystem(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
-                          float deltaTime, float damping, int numBodies, int p, int q,
+                          float deltaTime, float damping, int numBodies, int p,
                           float* dPos, float* dVel)
 {
     int threadsPerBlock = p;
@@ -226,7 +230,7 @@ void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
 
 
 
-void simulateNbodySystem(int numBodies, int numIterations, int p, int q, float deltaTime, float damping)
+void simulateNbodySystem(int numBodies, int numIterations, int p, float deltaTime, float damping)
 {
     // Allocate memory for particle data
     float* hPos = new float[numBodies * 4];
@@ -258,7 +262,7 @@ void simulateNbodySystem(int numBodies, int numIterations, int p, int q, float d
     // Run simulation for the specified number of iterations
     for (int i = 0; i < numIterations; i++) {
         // Integrate the N-body system
-        integrateNbodySystem(newPos, newVel, oldPos, oldVel, deltaTime, damping, numBodies, p, q, dPos, dVel);
+        integrateNbodySystem(newPos, newVel, oldPos, oldVel, deltaTime, damping, numBodies, p, dPos, dVel);
 
         // Copy particle data back to host
         cudaMemcpy(hPos, dPos, numBodies * sizeof(float4), cudaMemcpyDeviceToHost);
