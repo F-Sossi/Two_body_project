@@ -32,8 +32,6 @@
 #include "two_body.h"
 
 
-
-
 int main()
 {
     const int numIterations = 10;
@@ -67,10 +65,10 @@ int main()
     // int numBodies = numBodiesOptions[option - 1];
 
     // print the user's inputs
-    //printf("Number of bodies: %d \t Number of iterations: %d \t p: %d \t q: %d  \n", numBodies, numIterations, p, q);
+    // printf("Number of bodies: %d \t Number of iterations: %d \t p: %d \t q: %d  \n", numBodies, numIterations, p, q);
 
     // Call the simulation function with the user's inputs
-    simulateNbodySystem(numBodies, numIterations, p, deltaTime, damping);
+    simulateNbodySystem(numBodies, numIterations, deltaTime, damping);
 
     return 0;
 }
