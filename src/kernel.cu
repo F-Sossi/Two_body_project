@@ -1,6 +1,7 @@
 ﻿//---------------------------------------------------------------------------
 // kernel.cu
 // Author: Frank Sossi
+// Author: Amalaye Oyake
 // 
 // This program simulates the motion of two bodies in space. The bodies are
 // represented by spheres and the motion is simulated by using the Euler

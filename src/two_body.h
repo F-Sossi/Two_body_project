@@ -139,59 +139,66 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 //     }
 // }
 
+
 __global__
-void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel,
-                     float deltaTime, float damping, float mass, int numBodies)
+void calculateAcceleration(NBodyList bodies, int numBodies, float damping, float deltaTime)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (idx < numBodies) {
-        float4 pos = oldPos[idx];
-        float4 vel = oldVel[idx];
-        float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 pos     = NBodyList(blockIdx).pos;
+    float4 nextpos = NBodyList((threadIdx % numBodies) + 1).pos;
+    float4 vel     = NBodyList(threadIdx).vel;
 
-        // Determine the starting index and stride for this thread
-        int start = idx;
-        int stride = gridDim.x * blockDim.x;
+    float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 delta_a = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-        // Loop over the chunk of memory that this thread is responsible for
-        for (int i = start; i < numBodies; i += stride) {
-            if (i != idx) {
-                float4 pos2 = oldPos[i];
-                float4 delta = pos2 - pos;
+    float4 delta  = nextpos - pos;
 
-                float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                if (distSqr < 10 * SOFTENING) { // only calculate gravity if particles are close enough
-                    
-                    // Calculate the force of gravity between the two particles reciprocal square root
-                    float invDist = rsqrtf(distSqr + SOFTENING);
-                    // Calculate the force of gravity between the two particles
-                    float s = mass * powf(invDist, 3.0f);
+    float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-                    accel.x += delta.x * s;
-                    accel.y += delta.y * s;
-                    accel.z += delta.z * s;
-                }
-            }
-        }
+    // Only calculate gravity if particles are close enough
+    if (distSqr < 10 * SOFTENING) 
+    {
+        // Calculate the force of gravity between the two particles reciprocal square root
+        float invDist = rsqrtf(distSqr + SOFTENING);
 
-        // Update velocity using acceleration and damping
-        vel.x += deltaTime * accel.x;
-        vel.y += deltaTime * accel.y;
-        vel.z += deltaTime * accel.z;
+        // Calculate the force of gravity between the two particles
+        float s = mass * powf(invDist, 3.0f);
 
-        vel.x *= damping;
-        vel.y *= damping;
-        vel.z *= damping;
-
-        // Update position using velocity
-        pos.x += vel.x * deltaTime;
-        pos.y += vel.y * deltaTime;
-        pos.z += vel.z * deltaTime;
-
-        newPos[idx] = pos;
-        newVel[idx] = vel;
+        delta_a = delta.x * s;
+        delta_a = delta.y * s;
+        delta_a = delta.z * s;
     }
+
+    // Update the acceleration
+    AtomicAdd(NBodyList(blockIdx).accel, delta_a);
+}
+
+UpdateVelocityPosition(NBodyList bodies, int numBodies, float deltaTime)
+{
+
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    float4 accel   = NBodyList(blockIdx).accel;
+    float4 vel     = NBodyList(blockIdx).vel;
+    float4 pos     = NBodyList(blockIdx).pos;
+    float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    // Update velocity using acceleration and damping
+    vel.x += deltaTime * accel.x;
+    vel.y += deltaTime * accel.y;
+    vel.z += deltaTime * accel.z;
+
+    NBodyList(blockIdx).vel = vel;
+
+    // Update position using velocity
+    pos.x = vel.x * deltaTime;
+    pos.y = vel.y * deltaTime;
+    pos.y = vel.z * deltaTime;
+
+    NBodyList(blockIdx).pos = pos;
 }
 
 
