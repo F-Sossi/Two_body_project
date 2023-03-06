@@ -19,6 +19,31 @@ struct Body
     float4 acceleration;
 };
 
+unsigned int getNumThreads(unsigned int n)
+{
+    unsigned int num_threads = 2;
+
+    while((n > 2) && (num_threads < 1024))
+    {
+      n = n >> 1;
+      num_threads   = num_threads << 1; 
+    }
+
+    return num_threads;
+}
+
+unsigned int getNumBlocks(unsigned int n)
+{
+    if (n % 1024 == 0)
+    {
+        return  n / 1024;
+    }
+    else
+    {
+        return n / 1024 + 1;
+    }
+}
+
 void initBodies(Body *bodies, int numBodies) 
 {
    for (int i = 0; i < numBodies; i++) 
@@ -119,31 +144,6 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
 
     // Wait for completion across all blocks
     __syncthreads();
-}
-
-unsigned int getNumThreads(unsigned int n)
-{
-    unsigned int num_threads = 2;
-
-    while((n > 2) && (num_threads < 1024))
-    {
-      n = n >> 1;
-      num_threads   = num_threads << 1; 
-    }
-
-    return num_threads;
-}
-
-unsigned int getNumBlocks(unsigned int n)
-{
-    if (n % 1024 == 0)
-    {
-        return  n / 1024;
-    }
-    else
-    {
-        return n / 1024 + 1;
-    }
 }
 
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
