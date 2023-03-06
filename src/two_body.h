@@ -48,7 +48,9 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cuda
     unsigned int row = (index / numBodies); // 0 to N down
     unsigned int col = (index % numBodies); // 0 to N across
 
-    if ((row != col) || (index > (numBodies * numBodies))) // We will have (NxN) - ((N-1)x(N-1)) wasted threads
+    // We will have (NxN) - ((N-1)x(N-1)) wasted threads
+    // Also the worker thread has to be less than NxN
+    if ((row != col) || (index < (numBodies * numBodies)))
     {
         float4 position      = bodies[row].position;
         float4 next_position = bodies[col].position;
