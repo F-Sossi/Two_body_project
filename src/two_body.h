@@ -114,7 +114,7 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cuda
         __syncthreads();
 
         // Signal that the work is done
-        cudaEventRecord(is_complete);
+        //cudaEventRecord(is_complete);
     }
 }
 
@@ -159,9 +159,9 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
     unsigned int numBlocks       = getNumBlocks(numThreads);
     unsigned int threadsPerBlock = getNumThreads(numThreads);
 
-    integrate<<<numBlocks, numThreads>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
+    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
 
-    cudaEventSynchronize(is_complete);
+    //cudaEventSynchronize(is_complete);
 
     update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
 
