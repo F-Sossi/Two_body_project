@@ -43,42 +43,52 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cudaEvent_t is_complete)
 {
-    float4 position      = bodies[blockIdx.x].position;
-    float4 next_position = bodies[(threadIdx.x % numBodies) + 1].position;
-    //float4 velocity      = bodies[threadIdx.x].velocity;
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
 
-    float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 delta_acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    unsigned int row = (index / numBodies); // 0 to N down
+    unsigned int col = (index % numBodies); // 0 to N across
 
-    // Compute distance
-    float4 distance  = next_position - position;
-
-    // Compute distance squared
-    float distance_squared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
-
-    // Only calculate gravity if particles are close enough
-    if (distance_squared < 10 * SOFTENING) 
+    if ((row != col) || (index > (numBodies * numBodies))) // We will have (NxN) - ((N-1)x(N-1)) wasted threads
     {
-        // Calculate the force of gravity between the two particles reciprocal square root
-        float invDist = rsqrtf(distance_squared + SOFTENING);
+        float4 position      = bodies[row].position;
+        float4 next_position = bodies[col].position;
 
-        // Calculate the force of gravity between the two particles
-        float s = bodies[blockIdx.x].mass * powf(invDist, 3.0f);
+        float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+        float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+        float4 delta_acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-        delta_acceleration.x = distance.x * s;
-        delta_acceleration.y = distance.y * s;
-        delta_acceleration.z = distance.z * s;
+        // Compute distance
+        float4 distance  = next_position - position;
+
+        // Compute distance squared
+        float distance_squared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
+
+        // Only calculate gravity if particles are close enough
+        if (distance_squared < 10 * SOFTENING) 
+        {
+            // Calculate the force of gravity between the two particles reciprocal square root
+            float invDist = rsqrtf(distance_squared + SOFTENING);
+
+            // Calculate the force of gravity between the two particles
+            float s = bodies[blockIdx.x].mass * powf(invDist, 3.0f);
+
+            delta_acceleration.x = distance.x * s;
+            delta_acceleration.y = distance.y * s;
+            delta_acceleration.z = distance.z * s;
+        }
+
+        // Update the acceleration
+        atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
+        atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
+        atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
+        atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
+
+        // Wait for completion
+        __syncthreads();
+
+        // Signal that the work is done
+        cudaEventRecord(is_complete);
     }
-
-    // Update the acceleration
-    atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
-    atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
-    atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
-    atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
-
-    // Signal that the work is done
-    cudaEventRecord(is_complete);
 }
 
 __global__
@@ -104,16 +114,50 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
     position.y = velocity.z * deltaTime;
 
     bodies_n1[blockIdx.x].position = position;
+
+    // Wait for completion across all blocks
+    __syncthreads();
+}
+
+unsigned int getNumThreads(unsigned int n)
+{
+    unsigned int num_threads = 2;
+
+    while((n > 2) && (num_threads < 1024))
+    {
+      n = n >> 1;
+      num_threads   = num_threads << 1; 
+    }
+
+    return num_threads;
+}
+
+unsigned int getNumBlocks(unsigned int n)
+{
+    if (n % 1024 == 0)
+    {
+        return  n / 1024;
+    }
+    else
+    {
+        return n / 1024 + 1;
+    }
 }
 
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
                           float deltaTime, float damping, int numBodies,
                           Body *bodies_d)
 {
+
+    unsigned int numThreads = numBodies * numBodies;
+  
     cudaEvent_t is_complete;
     cudaEventCreate(&is_complete);
 
-    integrate<<<numBodies, numBodies>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
+    unsigned int numBlocks       = getNumBlocks(numThreads);
+    unsigned int threadsPerBlock = getNumThreads(numThreads);
+
+    integrate<<<numBlocks, numThreads>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
 
     cudaEventSynchronize(is_complete);
 
@@ -197,11 +241,3 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     cudaFree(bodies_n0);
     cudaFree(bodies_n1);
 }
-
-
-
-
-
-
-
-
