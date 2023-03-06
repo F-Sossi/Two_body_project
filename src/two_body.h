@@ -40,8 +40,6 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 }
 
-//  integrate<<<numBodies, numBodies>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
-
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cudaEvent_t is_complete)
 {
