@@ -17,7 +17,7 @@ struct Body
     float4 position;
     float4 velocity;
     float4 acceleration;
-}
+};
 
 void initBodies(Body *bodies, int numBodies) 
 {
@@ -40,66 +40,74 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 }
 
+//  integrate<<<numBodies, numBodies>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
+
 __global__
-void integrate(NBodyList bodies, int numBodies, float damping, float deltaTime, cudaEvent_t is_complete)
+void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cudaEvent_t is_complete)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    float4 pos     = NBodyList(blockIdx).pos;
-    float4 nextpos = NBodyList((threadIdx % numBodies) + 1).pos;
-    float4 vel     = NBodyList(threadIdx).vel;
+    float4 position      = bodies[blockIdx.x].position;
+    float4 next_position = bodies[(threadIdx.x % numBodies) + 1].position;
+    float4 velocity      = bodies[threadIdx.x].velocity;
 
     float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 delta_a = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 delta_acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-    float4 delta  = nextpos - pos;
+    // Compute distance
+    float4 distance  = next_position - position;
 
-    float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+    // Compute distance squared
+    float distance_squared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
 
     // Only calculate gravity if particles are close enough
-    if (distSqr < 10 * SOFTENING) 
+    if (distance_squared < 10 * SOFTENING) 
     {
         // Calculate the force of gravity between the two particles reciprocal square root
-        float invDist = rsqrtf(distSqr + SOFTENING);
+        float invDist = rsqrtf(distance_squared + SOFTENING);
 
         // Calculate the force of gravity between the two particles
-        float s = mass * powf(invDist, 3.0f);
+        float s = bodies[blockIdx.x].mass * powf(invDist, 3.0f);
 
-        delta_a = delta.x * s;
-        delta_a = delta.y * s;
-        delta_a = delta.z * s;
+        delta_acceleration.x = distance.x * s;
+        delta_acceleration.y = distance.y * s;
+        delta_acceleration.z = distance.z * s;
     }
 
     // Update the acceleration
-    AtomicAdd(NBodyList(blockIdx).accel, delta_a);
+    atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
+    atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
+    atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
+    atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
+
+    // Signal that the work is done
     cudaEventRecord(is_complete);
 }
 
 __global__
-void update(NBodyList bodies, float deltaTime)
+void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
 {
-
     // The acceleration had been previously computed
     // among the N bodies. Now the velocity and position
     // must be updated.
-    float4 accel   = bodies(blockIdx).accel;
-    float4 vel     = bodies(blockIdx).vel;
-    float4 pos     = bodies(blockIdx).pos;
+    float4 acceleration = bodies_n0[blockIdx.x].acceleration;
+    float4 velocity     = bodies_n0[blockIdx.x].velocity;
+    float4 position     = bodies_n0[blockIdx.x].position;
 
     // Update velocity using acceleration and damping
-    vel.x += deltaTime * accel.x;
-    vel.y += deltaTime * accel.y;
-    vel.z += deltaTime * accel.z;
+    velocity.x += deltaTime * acceleration.x;
+    velocity.y += deltaTime * acceleration.y;
+    velocity.z += deltaTime * acceleration.z;
 
-    bodies(blockIdx).vel = vel;
+    bodies_n1[blockIdx.x].velocity = velocity;
 
     // Update position using velocity
-    pos.x = vel.x * deltaTime;
-    pos.y = vel.y * deltaTime;
-    pos.y = vel.z * deltaTime;
+    position.x = velocity.x * deltaTime;
+    position.y = velocity.y * deltaTime;
+    position.y = velocity.z * deltaTime;
 
-    bodies(blockIdx).pos = pos;
+    bodies_n1[blockIdx.x].position = position;
 }
 
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
@@ -109,14 +117,14 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
     cudaEvent_t is_complete;
     cudaEventCreate(&is_complete);
 
-    integrate<<<numBlocks, numBlocks>>>(bodies_n0, bodies_n1, deltaTime, damping, 1, numBodies, is_complete);
+    integrate<<<numBodies, numBodies>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
 
     cudaEventSynchronize(is_complete);
 
-    update<<numBlocks, 1>>(bodies_n0, deltaTime);
+    update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
 
     // Swap old and new position/velocity arrays
-    Bodies* temp = bodies_n0;
+    Body *temp   = bodies_n0;
     bodies_n0    = bodies_n1;
     bodies_n1    = temp;
 
@@ -166,7 +174,7 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     for (int i = 0; i < numIterations; i++) 
     {
         // Integrate the N-body system
-        integrateNbodySystem(bodies_n0, bodies_n1, deltaTime, damping, numBodies, dPos, dVel);
+        integrateNbodySystem(bodies_n0, bodies_n1, deltaTime, damping, numBodies, bodies_d);
 
         // Copy particle data back to host
         cudaMemcpy(bodies_h, bodies_d, numBodies * sizeof(Body), cudaMemcpyDeviceToHost);
@@ -182,8 +190,8 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
         // Print the positions of the first few particles for debugging purposes
         for (int j = 0; j < 10; j++) 
         {
-            printf("Particle %d position: (%f, %f, %f)\n", j, bodies[i].position.x, 
-                    bodies[i].position.y, bodies[i].position.z);
+            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[i].position.x, 
+                    bodies_h[i].position.y, bodies_h[i].position.z);
         }
     }
 
