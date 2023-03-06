@@ -43,11 +43,9 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cudaEvent_t is_complete)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
     float4 position      = bodies[blockIdx.x].position;
     float4 next_position = bodies[(threadIdx.x % numBodies) + 1].position;
-    float4 velocity      = bodies[threadIdx.x].velocity;
+    //float4 velocity      = bodies[threadIdx.x].velocity;
 
     float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);

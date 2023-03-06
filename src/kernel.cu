@@ -35,10 +35,6 @@
 int main()
 {
     const int numIterations = 10;
-    const int numBodiesOptions[] = {1024, 2048, 4096, 8192};
-    const int numBodiesOptionCount = sizeof(numBodiesOptions) / sizeof(numBodiesOptions[0]);
-    // Threads per block
-    const int p = 1024;
 
     //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
     const float deltaTime = 0.1;
