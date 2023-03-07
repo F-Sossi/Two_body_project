@@ -66,7 +66,7 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 }
 
 __global__
-void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cudaEvent_t is_complete)
+void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 {
     int index = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -112,9 +112,6 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping, cuda
 
         // Wait for completion
         __syncthreads();
-
-        // Signal that the work is done
-        //cudaEventRecord(is_complete);
     }
 }
 
@@ -150,20 +147,26 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
                           float deltaTime, float damping, int numBodies,
                           Body *bodies_d)
 {
-
     unsigned int numThreads = numBodies * numBodies;
   
-    cudaEvent_t is_complete;
-    cudaEventCreate(&is_complete);
+    //cudaEvent_t is_complete;
+    //cudaEventCreate(&is_complete);
 
     unsigned int numBlocks       = getNumBlocks(numThreads);
     unsigned int threadsPerBlock = getNumThreads(numThreads);
 
-    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping,  is_complete);
+    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping);
+
+    // Signal that the work is done
+    //cudaEventRecord(is_complete);
 
     //cudaEventSynchronize(is_complete);
 
+    cudaDeviceSynchronize();
+
     update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
+
+    //cudaDeviceSynchronize();
 
     // Swap old and new position/velocity arrays
     Body *temp   = bodies_n0;
@@ -172,6 +175,8 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
 
     // Copy updated position and velocity arrays back to device for output
     cudaMemcpy(bodies_d, bodies_n0, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
+
+    //cudaEventDestroy(is_complete);
 }
 
 void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName) 
