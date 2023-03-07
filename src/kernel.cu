@@ -47,7 +47,7 @@ int main()
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.95;
 
-    int numBodies = 20480;
+    int numBodies = 102400;
 
     // // Prompt the user to select an option and loop until a valid option is entered
     // int option = 0;

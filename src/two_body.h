@@ -274,9 +274,9 @@ void simulateNbodySystem(int numBodies, int numIterations, int p, float deltaTim
         writePositionDataToFile(hPos, numBodies, fileName);
 
         // Print the positions of the first few particles for debugging purposes
-        for (int j = 0; j < 10; j++) {
-            printf("Particle %d position: (%f, %f, %f)\n", j, hPos[j * 4], hPos[j * 4 + 1], hPos[j * 4 + 2]);
-        }
+        // for (int j = 0; j < 10; j++) {
+        //     printf("Particle %d position: (%f, %f, %f)\n", j, hPos[j * 4], hPos[j * 4 + 1], hPos[j * 4 + 2]);
+        // }
     }
 
     // Cleanup
