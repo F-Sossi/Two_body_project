@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcommunicate.a CMakeFiles/communicate.dir/src/communicate_generated_communicate.cu.o
+/usr/bin/ranlib libcommunicate.a
