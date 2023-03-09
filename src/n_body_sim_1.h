@@ -18,6 +18,14 @@ struct Body
     float4 acceleration;
 };
 
+__device__ void atomicAddAcceleration(Body* body_a, float4 *acceleration)
+{
+    atomicAdd(&body_a->acceleration.x, acceleration->x);
+    atomicAdd(&body_a->acceleration.y, acceleration->y);
+    atomicAdd(&body_a->acceleration.z, acceleration->z);
+    atomicAdd(&body_a->acceleration.w, 0);
+}
+
 unsigned int getNumThreads(unsigned int n)
 {
     unsigned int num_threads = 2;
@@ -148,10 +156,7 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
         }
 
         // Update the updated bodies list
-        atomicAdd(&(bodies[col].acceleration.x), delta_acceleration.x);
-        atomicAdd(&(bodies[col].acceleration.y), delta_acceleration.y);
-        atomicAdd(&(bodies[col].acceleration.z), delta_acceleration.z);
-        atomicAdd(&(bodies[col].acceleration.w), delta_acceleration.w);
+        atomicAddAcceleration(&bodies[col], &delta_acceleration);
 
         // Wait for completion
         __syncthreads();
@@ -207,12 +212,12 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
     update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime, damping);
 
     // Swap old and new position/velocity arrays
-    Body *temp   = bodies_n0;
-    bodies_n0    = bodies_n1;
+    Body *temp   = bodies_n1;
+    bodies_n1    = bodies_n0;
     bodies_n1    = temp;
 
     // Copy updated position and velocity arrays back to device for output
-    cudaMemcpy(bodies_d, bodies_n0, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
+    cudaMemcpy(bodies_d, bodies_n1, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
 }
 
 void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName) 

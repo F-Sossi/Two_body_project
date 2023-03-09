@@ -35,7 +35,7 @@
 
 int main()
 {
-    const int numIterations = 10000;
+    const int numIterations = 100;
 
     //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
     const float deltaTime = 5000.1;
