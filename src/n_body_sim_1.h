@@ -111,14 +111,14 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 {
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-
-    unsigned int row = (index / numBodies); // 0 to N down
-    unsigned int col = (index % numBodies); // 0 to N across
+    const int col   = blockIdx.x * blockDim.x + threadIdx.x;
+    const int row   = blockIdx.y * blockDim.y + threadIdx.y;
+    const int index = row * numBodies + col;
+    const int max_range  = numBodies * numBodies;
 
     // We will have (NxN) - ((N-1)x(N-1)) wasted threads
     // Also the worker thread has to be less than NxN
-    if ((row != col) || (index < (numBodies * numBodies)))
+    if ((row != col) && index < max_range)
     {
         float4 position      = bodies[row].position;
         float4 next_position = bodies[col].position;
@@ -147,11 +147,11 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
             delta_acceleration.z = distance.z * s;
         }
 
-        // Update the acceleration
-        atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
+        // Update the updated bodies list
+        atomicAdd(&(bodies[col].acceleration.x), delta_acceleration.x);
+        atomicAdd(&(bodies[col].acceleration.y), delta_acceleration.y);
+        atomicAdd(&(bodies[col].acceleration.z), delta_acceleration.z);
+        atomicAdd(&(bodies[col].acceleration.w), delta_acceleration.w);
 
         // Wait for completion
         __syncthreads();
@@ -159,28 +159,32 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 }
 
 __global__
-void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
+void update(Body *bodies, Body* upd_bodies, float deltaTime, float damping)
 {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
     // The acceleration had been previously computed
     // among the N bodies. Now the velocity and position
     // must be updated.
-    float4 acceleration = bodies_n0[blockIdx.x].acceleration;
-    float4 velocity     = bodies_n0[blockIdx.x].velocity;
-    float4 position     = bodies_n0[blockIdx.x].position;
+    Body currentBody = bodies[idx];
+    float4 accel = currentBody.acceleration;
 
     // Update velocity using acceleration and damping
-    velocity.x += deltaTime * acceleration.x;
-    velocity.y += deltaTime * acceleration.y;
-    velocity.z += deltaTime * acceleration.z;
+    currentBody.velocity.x += deltaTime * accel.x;
+    currentBody.velocity.y += deltaTime * accel.y;
+    currentBody.velocity.z += deltaTime * accel.z;
 
-    bodies_n1[blockIdx.x].velocity = velocity;
+    currentBody.velocity.x *= damping;
+    currentBody.velocity.y *= damping;
+    currentBody.velocity.z *= damping;
 
     // Update position using velocity
-    position.x = velocity.x * deltaTime;
-    position.y = velocity.y * deltaTime;
-    position.y = velocity.z * deltaTime;
+    currentBody.position.x += currentBody.velocity.x * deltaTime;
+    currentBody.position.y += currentBody.velocity.y * deltaTime;
+    currentBody.position.z += currentBody.velocity.z * deltaTime;
 
-    bodies_n1[blockIdx.x].position = position;
+    // Update the body in the array
+    upd_bodies[idx] = currentBody;
 
     // Wait for completion across all blocks
     __syncthreads();
@@ -190,26 +194,17 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
                           float deltaTime, float damping, int numBodies,
                           Body *bodies_d)
 {
-    unsigned int numThreads = numBodies * numBodies;
-  
-    //cudaEvent_t is_complete;
-    //cudaEventCreate(&is_complete);
+    unsigned int threadsPerBlock = getNumThreads(numBodies);
+    const int numBlocks = (numBodies + threadsPerBlock - 1)/threadsPerBlock;
 
-    unsigned int numBlocks       = getNumBlocks(numThreads);
-    unsigned int threadsPerBlock = getNumThreads(numThreads);
+    const dim3 gridSize(numBlocks, numBlocks);
+    const dim3 blockSize(threadsPerBlock , threadsPerBlock);
 
-    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping);
-
-    // Signal that the work is done
-    //cudaEventRecord(is_complete);
-
-    //cudaEventSynchronize(is_complete);
+    integrate<<<gridSize, blockSize>>>(bodies_n0, numBodies, deltaTime, damping);
 
     cudaDeviceSynchronize();
 
-    update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
-
-    //cudaDeviceSynchronize();
+    update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime, damping);
 
     // Swap old and new position/velocity arrays
     Body *temp   = bodies_n0;
@@ -218,8 +213,6 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
 
     // Copy updated position and velocity arrays back to device for output
     cudaMemcpy(bodies_d, bodies_n0, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
-
-    //cudaEventDestroy(is_complete);
 }
 
 void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName) 

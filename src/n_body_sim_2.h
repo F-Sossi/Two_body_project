@@ -154,8 +154,6 @@ void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1,
                           float deltaTime, float damping, int numBodies,
                           Body *bodies_d)
 {
-    unsigned int numThreads = numBodies * numBodies;
-
     int threadsPerBlock = NUM_THREADS;
     int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
     // unsigned int numBlocks       = getNumBlocks(numThreads);
