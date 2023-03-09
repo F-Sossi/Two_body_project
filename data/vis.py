@@ -3,11 +3,14 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
 
+ZONE = 2000000
+NZONE = -500000
+
 def update_plot(num):
     ax.cla()
-    ax.set_xlim3d(-500, 500)
-    ax.set_ylim3d(-500, 500)
-    ax.set_zlim3d(-500, 500)
+    ax.set_xlim3d(NZONE, ZONE)
+    ax.set_ylim3d(NZONE, ZONE)
+    ax.set_zlim3d(NZONE, ZONE)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')

@@ -29,20 +29,21 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <cuda_gl_interop.h>
-#include "two_body.h"
+#include "n_body_sim_1.h"
+#include "n_body_sim_2.h"
 
 
 int main()
 {
-    const int numIterations = 10;
+    const int numIterations = 1000;
 
     //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
-    const float deltaTime = 0.1;
+    const float deltaTime = 5000.1;
 
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.95;
 
-    int numBodies = 1000;
+    int numBodies = 100;
 
     // // Prompt the user to select an option and loop until a valid option is entered
     // int option = 0;

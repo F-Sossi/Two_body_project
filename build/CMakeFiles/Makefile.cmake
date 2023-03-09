@@ -11,8 +11,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.24.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.24.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.24.2/CMakeSystem.cmake"
-  "CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.cmake.pre-gen"
-  "CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.depend"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake.pre-gen"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.depend"
   "/usr/share/cmake-3.24/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.24/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-3.24/Modules/CMakeCommonLanguageInclude.cmake"
@@ -56,12 +56,12 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.cmake.pre-gen"
-  "CMakeFiles/two_body.exe.dir/src/two_body.exe_generated_kernel.cu.o.cmake"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake.pre-gen"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/two_body.exe.dir/DependInfo.cmake"
+  "CMakeFiles/n_body.exe.dir/DependInfo.cmake"
   )
