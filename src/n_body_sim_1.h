@@ -60,6 +60,22 @@ void initBodies(Body *bodies, int numBodies)
     }
 }
 
+void initBodiesTest(Body *bodies, int numBodies) 
+{
+   for (int i = 0; i < numBodies; i++) 
+    {
+        bodies[i].position.x = 400.0f * i;
+        bodies[i].position.y = 400.0f * i;
+        bodies[i].position.z = 400.0f * i;
+        bodies[i].position.w = 1.0f;
+
+        bodies[i].velocity.x = 1112.1f;
+        bodies[i].velocity.y = 1112.1f;
+        bodies[i].velocity.z = 1112.1f;
+        bodies[i].velocity.w = 1112.1f;
+    }
+}
+
 __host__ __device__ float4 operator-(const float4& a, const float4& b)
 {
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
@@ -209,7 +225,7 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
 
     // Initialize the data
-    initBodies(bodies_h, numBodies);
+    initBodiesTest(bodies_h, numBodies);
 
     // Next, copy particle data to device to start the run
     cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);

@@ -29,7 +29,8 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <cuda_gl_interop.h>
-#include "two_body.h"
+#include "n_body_sim_1.h"
+#include "n_body_sim_2.h"
 
 
 int main()
@@ -42,7 +43,7 @@ int main()
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.95;
 
-    int numBodies = 1000;
+    int numBodies = 10;
 
     // // Prompt the user to select an option and loop until a valid option is entered
     // int option = 0;
