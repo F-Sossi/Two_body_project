@@ -57,7 +57,7 @@ set(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake.pre-gen"
-  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.Debug.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 

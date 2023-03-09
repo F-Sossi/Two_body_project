@@ -374,10 +374,10 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/vector_functions.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/vector_functions.hpp
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/vector_types.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.Debug.cmake
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/user/repos/Two_body_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building NVCC (Device) object CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o"
 	cd /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src && /usr/bin/cmake -E make_directory /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/.
-	cd /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src && /usr/bin/cmake -D verbose:BOOL=$(VERBOSE) -D build_configuration:STRING= -D generated_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/./n_body.exe_generated_kernel.cu.o -D generated_cubin_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/./n_body.exe_generated_kernel.cu.o.cubin.txt -P /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.cmake
+	cd /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src && /usr/bin/cmake -D verbose:BOOL=$(VERBOSE) -D build_configuration:STRING=Debug -D generated_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/./n_body.exe_generated_kernel.cu.o -D generated_cubin_file:STRING=/home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/./n_body.exe_generated_kernel.cu.o.cubin.txt -P /home/user/repos/Two_body_project/build/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o.Debug.cmake
 
 # Object files for target n_body.exe
 n_body_exe_OBJECTS =

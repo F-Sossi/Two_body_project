@@ -37,3 +37,4 @@
 *.code-workspace
 *.idea
 data/*
+build/*
