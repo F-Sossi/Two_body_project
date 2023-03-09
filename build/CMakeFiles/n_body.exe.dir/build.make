@@ -83,6 +83,7 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/asm
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/assert.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/backward/binders.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bit
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/alloc_traits.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/allocator.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/basic_ios.h
@@ -120,23 +121,31 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/postypes.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/predefined_ops.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/ptr_traits.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/random.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/random.tcc
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/range_access.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/refwrap.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/specfun.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/std_abs.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_algobase.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_bvector.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_construct.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_function.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_iterator.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_iterator_base_funcs.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_iterator_base_types.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_numeric.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_pair.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_relops.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_uninitialized.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stl_vector.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/streambuf.tcc
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/streambuf_iterator.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/string_view.tcc
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/stringfwd.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/uniform_int_dist.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/utility.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/bits/vector.tcc
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cctype
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cerrno
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/clocale
@@ -164,8 +173,12 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/limits
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/math.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/new
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/numeric
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/ostream
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/pstl/execution_defs.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/pstl/glue_numeric_defs.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/pstl/pstl_config.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/random
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/stdexcept
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/stdlib.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/streambuf
@@ -187,6 +200,7 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/type_traits
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/typeinfo
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/utility
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/vector
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/ctype.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/endian.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/errno.h
@@ -295,6 +309,7 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/error_constants.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/gthr-default.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/gthr.h
+CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/opt_random.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/x86_64-linux-gnu/gnu/stubs.h
@@ -379,6 +394,7 @@ n_body.exe: /usr/lib/x86_64-linux-gnu/libOpenGL.so
 n_body.exe: /usr/lib/x86_64-linux-gnu/libGLX.so
 n_body.exe: /usr/lib/x86_64-linux-gnu/libGLU.so
 n_body.exe: /usr/lib/x86_64-linux-gnu/libglut.so
+n_body.exe: /usr/lib/x86_64-linux-gnu/libXi.so
 n_body.exe: /usr/lib/x86_64-linux-gnu/libpython3.10.so
 n_body.exe: CMakeFiles/n_body.exe.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/user/repos/Two_body_project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable n_body.exe"

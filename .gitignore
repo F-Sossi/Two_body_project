@@ -36,3 +36,4 @@
 *.csv
 *.code-workspace
 *.idea
+data/*

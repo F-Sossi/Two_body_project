@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <random>
 #include <string.h>
 #include <fstream>
 #include <cuda_runtime.h>
@@ -28,6 +29,32 @@ void initParticles(float* hPos, float* hVel, int numBodies) {
     }
 }
 
+void initBodiesTest2(Body *bodies, int numBodies) 
+{
+    // Create random number generator for each item
+    std::mt19937_64 gen(std::random_device{}());
+    std::uniform_real_distribution<float> posDist(0.0f, 400.0f);
+    std::uniform_real_distribution<float> velDist(0.0f, 500.1f);
+    std::uniform_real_distribution<float> mass(0.0f, 10.0f);
+
+    for (int i = 0; i < numBodies; i++) 
+    {
+        // Generate random values for position
+        bodies[i].position.x = posDist(gen);
+        bodies[i].position.y = posDist(gen);
+        bodies[i].position.z = posDist(gen);
+        bodies[i].position.w = 1.0f;
+
+        // Generate random values for velocity
+        bodies[i].velocity.x = velDist(gen);
+        bodies[i].velocity.y = velDist(gen);
+        bodies[i].velocity.z = velDist(gen);
+        bodies[i].velocity.w = 0.1f;
+
+        // Generate random value for mass
+        bodies[i].mass = mass(gen) * i;
+    }
+}
 // __host__ __device__ float4 operator-(const float4& a, const float4& b)
 // {
 //     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
@@ -177,7 +204,7 @@ void simulateNbodySystem2(int numBodies, int numIterations, float deltaTime, flo
     cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
 
     // Initialize the data
-    initBodiesTest(bodies_h, numBodies);
+    initBodiesTest2(bodies_h, numBodies);
 
     // Next, copy particle data to device to start the run
     cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
@@ -204,11 +231,11 @@ void simulateNbodySystem2(int numBodies, int numIterations, float deltaTime, flo
 
         writePositionDataToFile(bodies_h, numBodies, fileName);
 
-        for (int j = 0; j < 10; j++) 
-        {
-            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
-                    bodies_h[j].position.y, bodies_h[j].position.z);
-        }
+        // for (int j = 0; j < 10; j++) 
+        // {
+        //     printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
+        //             bodies_h[j].position.y, bodies_h[j].position.z);
+        // }
     }
 
     // Cleanup

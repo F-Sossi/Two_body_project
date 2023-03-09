@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <random>
 #include <fstream>
 #include <cuda_runtime.h>
-#include <GL/glew.h>
-#include <GL/glut.h>
 #include <cuda_gl_interop.h>
 
 constexpr float SOFTENING    = 0.00125f;
@@ -69,10 +68,38 @@ void initBodiesTest(Body *bodies, int numBodies)
         bodies[i].position.z = 400.0f * i;
         bodies[i].position.w = 1.0f;
 
-        bodies[i].velocity.x = 1112.1f;
-        bodies[i].velocity.y = 1112.1f;
-        bodies[i].velocity.z = 1112.1f;
-        bodies[i].velocity.w = 1112.1f;
+        bodies[i].velocity.x = 1100.1f;
+        bodies[i].velocity.y = 200.1f;
+        bodies[i].velocity.z = 30.1f;
+        bodies[i].velocity.w = 0.1f;
+        bodies[i].mass = 10.0f * i;
+    }
+}
+
+void initBodies2(Body *bodies, int numBodies) 
+{
+    // Create random number generator for each item
+    std::mt19937_64 gen(std::random_device{}());
+    std::uniform_real_distribution<float> posDist(0.0f, 400.0f);
+    std::uniform_real_distribution<float> velDist(0.0f, 500.1f);
+    std::uniform_real_distribution<float> mass(0.0f, 10.0f);
+
+    for (int i = 0; i < numBodies; i++) 
+    {
+        // Generate random values for position
+        bodies[i].position.x = posDist(gen);
+        bodies[i].position.y = posDist(gen);
+        bodies[i].position.z = posDist(gen);
+        bodies[i].position.w = 1.0f;
+
+        // Generate random values for velocity
+        bodies[i].velocity.x = velDist(gen);
+        bodies[i].velocity.y = velDist(gen);
+        bodies[i].velocity.z = velDist(gen);
+        bodies[i].velocity.w = 0.1f;
+
+        // Generate random value for mass
+        bodies[i].mass = mass(gen) * i;
     }
 }
 
@@ -225,7 +252,7 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
 
     // Initialize the data
-    initBodiesTest(bodies_h, numBodies);
+    initBodies2(bodies_h, numBodies);
 
     // Next, copy particle data to device to start the run
     cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
