@@ -40,6 +40,19 @@ void initParticles(float* hPos, float* hVel, int numBodies) {
     }
 }
 
+void initParticlesTest(float* hPos, float* hVel, int numBodies) {
+    for (int i = 0; i < numBodies; i++) {
+        hPos[i * 4] = 400.0f * i;
+        hPos[i * 4 + 1] = 400.0f * i;
+        hPos[i * 4 + 2] = 400.0f * i;
+        hPos[i * 4 + 3] = 1.0f;
+        hVel[i * 4] = 1112.1f;
+        hVel[i * 4 + 1] = 1112.1f;
+        hVel[i * 4 + 2] = 1112.1f;
+        hVel[i * 4 + 3] = 1112.1f;
+    }
+}
+
 __host__ __device__ float4 operator-(const float4& a, const float4& b)
 {
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
@@ -241,7 +254,7 @@ void simulateNbodySystem(int numBodies, int numIterations, int p, float deltaTim
     cudaMalloc(&dVel, numBodies * sizeof(float4));
 
     // Initialize particle data
-    initParticles(hPos, hVel, numBodies);
+    initParticlesTest(hPos, hVel, numBodies);
 
     // Copy particle data to device
     cudaMemcpy(dPos, hPos, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
@@ -273,10 +286,10 @@ void simulateNbodySystem(int numBodies, int numIterations, int p, float deltaTim
         sprintf(fileName, "positions_%d.txt", i);  // Create filename with current iteration number
         writePositionDataToFile(hPos, numBodies, fileName);
 
-        // Print the positions of the first few particles for debugging purposes
-        // for (int j = 0; j < 10; j++) {
-        //     printf("Particle %d position: (%f, %f, %f)\n", j, hPos[j * 4], hPos[j * 4 + 1], hPos[j * 4 + 2]);
-        // }
+        //Print the positions of the first few particles for debugging purposes
+        for (int j = 0; j < 10; j++) {
+            printf("Particle %d position: (%f, %f, %f)\n", j, hPos[j * 4], hPos[j * 4 + 1], hPos[j * 4 + 2]);
+        }
     }
 
     // Cleanup

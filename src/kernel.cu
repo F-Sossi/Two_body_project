@@ -39,7 +39,7 @@ int main()
     const int numBodiesOptions[] = {1024, 2048, 4096, 8192};
     const int numBodiesOptionCount = sizeof(numBodiesOptions) / sizeof(numBodiesOptions[0]);
     // Threads per block
-    const int p = 1024;
+    const int p = 32;
 
     //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
     const float deltaTime = 0.1;
@@ -47,7 +47,7 @@ int main()
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.95;
 
-    int numBodies = 102400;
+    int numBodies = 10;
 
     // // Prompt the user to select an option and loop until a valid option is entered
     // int option = 0;
