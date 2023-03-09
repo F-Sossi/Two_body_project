@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
 
-ZONE = 2000000
-NZONE = -500000
+ZONE = 5000
+NZONE = -5000
 
 def update_plot(num):
     ax.cla()

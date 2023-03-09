@@ -6,9 +6,6 @@
 #include <string.h>
 #include <fstream>
 #include <cuda_runtime.h>
-#include <GL/glew.h>
-#include <GL/glut.h>
-#include <cuda_gl_interop.h>
 #include "n_body_sim_1.h"
 
 // constexpr float SOFTENING = 0.00125f;
@@ -33,7 +30,7 @@ void initBodiesTest2(Body *bodies, int numBodies)
 {
     // Create random number generator for each item
     std::mt19937_64 gen(std::random_device{}());
-    std::uniform_real_distribution<float> posDist(0.0f, 400.0f);
+    std::uniform_real_distribution<float> posDist(0.0f, 40.0f);
     std::uniform_real_distribution<float> velDist(0.0f, 500.1f);
     std::uniform_real_distribution<float> mass(0.0f, 10.0f);
 
@@ -55,11 +52,6 @@ void initBodiesTest2(Body *bodies, int numBodies)
         bodies[i].mass = mass(gen) * i;
     }
 }
-// __host__ __device__ float4 operator-(const float4& a, const float4& b)
-// {
-//     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
-// }
-
 
 
 __global__
