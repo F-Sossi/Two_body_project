@@ -232,6 +232,7 @@ void simulateNbodySystem2(int numBodies, int numIterations, float deltaTime, flo
 
     // Cleanup
     delete[] bodies_h;
+    free (bodies_h);
     cudaFree(bodies_d);
     cudaFree(bodies_n0);
     cudaFree(bodies_n1);
