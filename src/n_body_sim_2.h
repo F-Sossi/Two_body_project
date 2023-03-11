@@ -8,44 +8,120 @@
 #include <cuda_runtime.h>
 #include "n_body_sim_1.h"
 
-// constexpr float SOFTENING = 0.00125f;
-// const float GRAVITY_CONSTANT = 6.67430e-11f;
-constexpr int NUM_THREADS = 32;
+constexpr int NUM_THREADS = 1024;
 
-
-void initParticles(float* hPos, float* hVel, int numBodies) {
-    for (int i = 0; i < numBodies; i++) {
-        hPos[i * 4] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
-        hPos[i * 4 + 1] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
-        hPos[i * 4 + 2] = 400.0f * (rand() / (float)RAND_MAX) - 400.0f;
-        hPos[i * 4 + 3] = 1.0f;
-        hVel[i * 4] = 1112.1f;
-        hVel[i * 4 + 1] = 1112.1f;
-        hVel[i * 4 + 2] = 1112.1f;
-        hVel[i * 4 + 3] = 1112.1f;
-    }
+// Addition
+__host__ __device__ float4 operator+(const float4& a, const float4& b)
+{
+    return make_float4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 
-void initBodiesTest2(Body *bodies, int numBodies) 
+// Scalar multiplication
+__host__ __device__ float4 operator*(const float4& a, const float& b)
 {
-    // Create random number generator for each item
-    std::mt19937_64 gen(std::random_device{}());
-    std::uniform_real_distribution<float> posDist(0.0f, 40.0f);
-    std::uniform_real_distribution<float> velDist(0.0f, 500.1f);
-    std::uniform_real_distribution<float> mass(0.0f, 10.0f);
+    return make_float4(a.x * b, a.y * b, a.z * b, a.w * b);
+}
 
-    for (int i = 0; i < numBodies; i++) 
-    {
+// Scalar multiplication
+__host__ __device__ float4 operator*(const float& b, const float4& a)
+{
+    return a * b;
+}
+
+// Dot product
+__host__ __device__ float dot(const float4& a, const float4& b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+// Cross product
+__host__ __device__ float4 cross(const float4& a, const float4& b)
+{
+    return make_float4(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x, 0.0f);
+}
+
+// Magnitude
+__host__ __device__ float length(const float4& a)
+{
+    return sqrtf(dot(a, a));
+}
+
+
+// Normalize
+__host__ __device__ float4 normalize(const float4& a)
+{
+    float invLen = 1.0f / length(a);
+    return make_float4(a.x * invLen, a.y * invLen, a.z * invLen, a.w * invLen);
+}
+
+// Scalar division
+__host__ __device__ float4 operator/(const float4& a, const float& b)
+{
+    return make_float4(a.x / b, a.y / b, a.z / b, a.w / b);
+}
+
+
+// Addition assignment
+__host__ __device__ float4& operator+=(float4& a, const float4& b)
+{
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+    a.w += b.w;
+    return a;
+}
+
+// Subtraction assignment
+__host__ __device__ float4& operator-=(float4& a, const float4& b)
+{
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+    a.w -= b.w;
+    return a;
+}
+
+
+void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, float deltaTime, float damping, int numBodies,
+                           Body *bodies_d);
+
+__global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
+
+__global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
+
+void initBodiesTest2(Body *bodies, int numBodies);
+
+
+
+void initBodiesTest2(Body *bodies, int numBodies) {
+    std::mt19937_64 gen(std::random_device{}());
+    std::uniform_real_distribution<float> posDist(1000.0f, 50000.0f);
+    std::uniform_real_distribution<float> velDist(20.0f, 50.1f);
+    std::uniform_real_distribution<float> mass(100000.0f, 1000000.0f);
+
+    for (int i = 0; i < numBodies; i++) {
         // Generate random values for position
         bodies[i].position.x = posDist(gen);
         bodies[i].position.y = posDist(gen);
         bodies[i].position.z = posDist(gen);
-        bodies[i].position.w = 1.0f;
+        bodies[i].position.w = 1;
+        
+        // Generate random vector for velocity direction
+        float vx = std::uniform_real_distribution<float>(-1.0f, 1.0f)(gen);
+        float vy = std::uniform_real_distribution<float>(-1.0f, 1.0f)(gen);
+        float vz = std::uniform_real_distribution<float>(-1.0f, 1.0f)(gen);
 
-        // Generate random values for velocity
-        bodies[i].velocity.x = velDist(gen);
-        bodies[i].velocity.y = velDist(gen);
-        bodies[i].velocity.z = velDist(gen);
+        // Scale the velocity direction vector to the desired magnitude
+        float velocityMag = velDist(gen);
+        float invLength = 1.0f / sqrt(vx*vx + vy*vy + vz*vz);
+        vx *= velocityMag * invLength;
+        vy *= velocityMag * invLength;
+        vz *= velocityMag * invLength;
+
+        // Set the velocity values for the body
+        bodies[i].velocity.x = vx;
+        bodies[i].velocity.y = vy;
+        bodies[i].velocity.z = vz;
         bodies[i].velocity.w = 0.1f;
 
         // Generate random value for mass
@@ -54,18 +130,49 @@ void initBodiesTest2(Body *bodies, int numBodies)
 }
 
 
-__global__
-void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping)
-{
+
+void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, 
+                           float deltaTime, float damping, int numBodies,
+                           Body *bodies_d) {
+
+
+    int threadsPerBlock = NUM_THREADS;
+    int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
+
+    integrate2<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime, damping, 1.0f, 100.0f);
+
+    cudaDeviceSynchronize();
+
+    // Swap old and new position/velocity arrays
+    Body *temp   = bodies_n1;
+    bodies_n1    = bodies_n0;
+    bodies_n0    = temp;
+
+    // Copy updated position and velocity arrays back to device for output
+    cudaMemcpy(bodies_d, bodies_n1, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
+}
+
+void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
+    std::ofstream outFile("../data/" + std::string(fileName));
+    for (int i = 0; i < numBodies; i++) {
+        outFile << hPos[i * 4] << " " << hPos[i * 4 + 1] << " " << hPos[i * 4 + 2] << std::endl;
+    }
+    outFile.close();
+}
+
+
+
+__global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+    
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < numBodies) {
+
         Body currentBody = bodies[idx];
         float4 accel = currentBody.acceleration;
 
         // Determine the starting index and stride for this thread
-        int start = idx;
-        //int stride = gridDim.x * blockDim.x;
+        int start = 0;
 
         // Loop over the chunk of memory that this thread is responsible for
         for (int i = start; i < numBodies; i++) {
@@ -79,7 +186,7 @@ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, 
                 float distSqr = delta_p.x * delta_p.x + delta_p.y * delta_p.y + delta_p.z * delta_p.z;
 
                 // Only calculate gravity if particles are close enough
-                if (distSqr < 10 * SOFTENING) {
+                if (distSqr < 1000) {
                     // Calculate the force of gravity between the two particles reciprocal square root
                     float invDist = rsqrtf(distSqr + SOFTENING);
 
@@ -89,6 +196,31 @@ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, 
                     accel.x += delta_p.x * s;
                     accel.y += delta_p.y * s;
                     accel.z += delta_p.z * s;
+                }
+
+                // Check for collision
+                float dist = sqrtf(distSqr);
+                if (dist < 2 * radius) {
+                    // Calculate the relative velocity of the two bodies
+                    float4 delta_v = otherBody.velocity - currentBody.velocity;
+
+                    // Calculate the normal vector between the two bodies
+                    float4 normal = delta_p / dist;
+
+                    // Calculate the impulse magnitude
+                    float impulse_mag = dot(delta_v, normal) * (1 + restitution) / (1 / currentBody.mass + 1 / otherBody.mass);
+
+                    // Calculate the impulse
+                    float4 impulse = impulse_mag * normal;
+
+                    // Update the velocities of the two bodies
+                    currentBody.velocity += impulse / currentBody.mass;
+                    otherBody.velocity -= impulse / otherBody.mass;
+
+                    // Move the bodies apart to avoid overlapping
+                    float4 separation = (2 * radius - dist) * normal;
+                    currentBody.position -= separation / 2;
+                    otherBody.position += separation / 2;
                 }
             }
         }
@@ -101,7 +233,6 @@ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, 
         currentBody.velocity.x *= damping;
         currentBody.velocity.y *= damping;
         currentBody.velocity.z *= damping;
-
         // Update position using velocity
         currentBody.position.x += currentBody.velocity.x * deltaTime;
         currentBody.position.y += currentBody.velocity.y * deltaTime;
@@ -114,241 +245,125 @@ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, 
     }
 }
 
-
-// void integrateNbodySystem2(Body *bodies_n0, Body *bodies_n1, 
-//                           float deltaTime, float damping, int numBodies,
-//                           Body *bodies_d)
-// {
-//     unsigned int numThreads = numBodies * numBodies;
-
-
-//     int threadsPerBlock = NUM_THREADS;
-//     int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
-//     // unsigned int numBlocks       = getNumBlocks(numThreads);
-//     // unsigned int threadsPerBlock = getNumThreads(numThreads);
-
-//     integrate2<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping);
-
-//     cudaDeviceSynchronize();
-
-//     // Swap old and new position/velocity arrays
-//     Body *temp   = bodies_n0;
-//     bodies_n0    = bodies_n1;
-//     bodies_n1    = temp;
-
-//     // Copy updated position and velocity arrays back to device for output
-//     cudaMemcpy(bodies_d, bodies_n0, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
-
-//     //cudaEventDestroy(is_complete);
-// }
-
-void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, 
-                          float deltaTime, float damping, int numBodies,
-                          Body *bodies_d)
-{
-    unsigned int numThreads = numBodies * numBodies;
-
-    int threadsPerBlock = NUM_THREADS;
-    int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
-    // unsigned int numBlocks       = getNumBlocks(numThreads);
-    // unsigned int threadsPerBlock = getNumThreads(numThreads);
-
-    integrate2<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime, damping);
-
-    cudaDeviceSynchronize();
-
-
-    // Swap old and new position/velocity arrays
-    Body *temp   = bodies_n1;
-    bodies_n1    = bodies_n0;
-    bodies_n1    = temp;
-
-    // Copy updated position and velocity arrays back to device for output
-    cudaMemcpy(bodies_d, bodies_n1, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
-
-    //cudaEventDestroy(is_complete);
-}
-
-
-void writePositionDataToFile2(float* hPos, int numBodies, const char* fileName) {
-    std::ofstream outFile("../data/" + std::string(fileName));
-    for (int i = 0; i < numBodies; i++) {
-        outFile << hPos[i * 4] << " " << hPos[i * 4 + 1] << " " << hPos[i * 4 + 2] << std::endl;
+__global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+    
+    int idx = blockIdx.x * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
+    
+    if (idx < numBodies) {
+        
+        Body currentBody = bodies[idx];
+        float4 accel = currentBody.acceleration;
+        for (int row = idx; row < numBodies; row += blockDim.x * blockDim.y) {
+            
+            for (int col = 0; col < blockDim.x; col++) {
+                int i = row + threadIdx.y * blockDim.x + col;
+                if (i >= numBodies) {
+                    break;
+                }
+                if (i != idx) {
+                    
+                    Body otherBody = bodies[i];
+                    float4 delta_p = otherBody.position - currentBody.position;
+                    float distSqr = delta_p.x * delta_p.x + delta_p.y * delta_p.y + delta_p.z * delta_p.z;
+                    
+                    if (distSqr < 10 * SOFTENING) {
+                        float invDist = rsqrtf(distSqr + SOFTENING);
+                        float s = otherBody.mass * powf(invDist, 3.0f);
+                        accel.x += delta_p.x * s;
+                        accel.y += delta_p.y * s;
+                        accel.z += delta_p.z * s;
+                    }
+                    float dist = sqrtf(distSqr);
+                    
+                    if (dist < 2 * radius) {
+                        float4 delta_v = otherBody.velocity - currentBody.velocity;
+                        float4 normal = delta_p / dist;
+                        float impulse_mag = dot(delta_v, normal) * (1 + restitution) / (1 / currentBody.mass + 1 / otherBody.mass);
+                        float4 impulse = impulse_mag * normal;
+                        currentBody.velocity += impulse / currentBody.mass;
+                        otherBody.velocity -= impulse / otherBody.mass;
+                        float4 separation = (2 * radius - dist) * normal;
+                        currentBody.position -= separation / 2;
+                        otherBody.position += separation / 2;
+                    }
+                }
+            }
+        }
+        currentBody.velocity.x += deltaTime * accel.x;
+        currentBody.velocity.y += deltaTime * accel.y;
+        currentBody.velocity.z += deltaTime * accel.z;
+        currentBody.velocity.x *= damping;
+        currentBody.velocity.y *= damping;
+        currentBody.velocity.z *= damping;
+        currentBody.position.x += currentBody.velocity.x * deltaTime;
+        currentBody.position.y += currentBody.velocity.y * deltaTime;
+        currentBody.position.z += currentBody.velocity.z * deltaTime;
+        upd_bodies[idx] = currentBody;
     }
-    outFile.close();
 }
 
-void simulateNbodySystem2(int numBodies, int numIterations, float deltaTime, float damping)
-{
-    // Initial conditions
-    Body *bodies_h; // Host body data
-    Body *bodies_d; // device body data
 
-    // N-body system variables used for integration
+
+class NbodySystem {
+private:
+    Body *bodies_h;
+    Body *bodies_d;
+
     Body *bodies_n0;
     Body *bodies_n1;
-    
-    // Allocate the memory for the host
-    bodies_h = new Body[numBodies];
 
-    cudaMalloc(&bodies_d,  numBodies * sizeof(Body));
-    cudaMalloc(&bodies_n0, numBodies * sizeof(Body));
-    cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
+    int numBodies;
 
-    // Initialize the data
-    initBodiesTest2(bodies_h, numBodies);
+public:
+    NbodySystem(int numBodies) : numBodies(numBodies) {
+        cudaMalloc(&bodies_d,  numBodies * sizeof(Body));
+        cudaMalloc(&bodies_n0, numBodies * sizeof(Body));
+        cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
 
-    // Next, copy particle data to device to start the run
-    cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
+        // Allocate the memory for the host
+        bodies_h = new Body[numBodies];
 
-    // Set up the initial conditions    
-    cudaMemcpy(bodies_n0, bodies_h, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
+        // Initialize the data
+        initBodiesTest2(bodies_h, numBodies);
 
-    // Run simulation for the specified number of iterations
-    for (int i = 0; i < numIterations; i++) 
-    {
-        // Integrate the N-body system
-        //integrateNbodySystem2(bodies_n0, bodies_n1, deltaTime, damping, numBodies, bodies_d);
-        integrateNbodySystem2(bodies_n0, bodies_n1, deltaTime, damping, numBodies, bodies_d);
+        // Next, copy particle data to device to start the run
+        cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
 
-
-        // Copy particle data back to host
-        cudaMemcpy(bodies_h, bodies_d, numBodies * sizeof(Body), cudaMemcpyDeviceToHost);
-
-        // Write particle positions to file for visualization
-        char fileName[100];
-
-        // Create filename with current iteration number
-        sprintf(fileName, "positions_%d.txt", i);
-
-        writePositionDataToFile(bodies_h, numBodies, fileName);
-
-        // for (int j = 0; j < 10; j++) 
-        // {
-        //     printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
-        //             bodies_h[j].position.y, bodies_h[j].position.z);
-        // }
+        // Set up the initial conditions    
+        cudaMemcpy(bodies_n0, bodies_h, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
     }
 
-    // Cleanup
-    delete[] bodies_h;
-    free (bodies_h);
-    cudaFree(bodies_d);
-    cudaFree(bodies_n0);
-    cudaFree(bodies_n1);
+    void simulate(int numIterations, float deltaTime, float damping) {
+        // Run simulation for the specified number of iterations
+        for (int i = 0; i < numIterations; i++) {
+            // Integrate the N-body system
+            integrateNbodySystem2(bodies_n0, bodies_n1, deltaTime, damping, numBodies, bodies_d);
 
+            // Copy particle data back to host
+            cudaMemcpy(bodies_h, bodies_d, numBodies * sizeof(Body), cudaMemcpyDeviceToHost);
+
+            // Write particle positions to file for visualization
+            char fileName[100];
+
+            // Create filename with current iteration number
+            sprintf(fileName, "positions_%d.txt", i);
+
+            writePositionDataToFile((float *)bodies_h, numBodies, fileName);
+        }
+    }
+
+    ~NbodySystem() {
+        delete[] bodies_h;
+        //firee(bodies_h);
+        cudaFree(bodies_d);
+        cudaFree(bodies_n0);
+        cudaFree(bodies_n1);
+    }
+};
+
+void runNbodySimulation(int numBodies, int numIterations, float deltaTime, float damping) {
+    NbodySystem nbodySystem(numBodies);
+
+    nbodySystem.simulate(numIterations, deltaTime, damping);
 }
 
-
-// Old code
-
-// __global__
-// void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
-//                      float deltaTime, float damping, int numBodies) 
-// {
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-//     if (idx < numBodies) {
-//         float4 pos = oldPos[idx];
-//         float4 vel = oldVel[idx];
-//         float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-//         for (int i = 0; i < numBodies; i++) {
-//             if (i != idx) {
-//                 float4 pos2 = oldPos[i];
-//                 float4 delta = pos2 - pos;
-
-//                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-//                 float invDist = rsqrtf(distSqr + SOFTENING);
-
-//                 float s = powf(invDist, 3.0f);
-
-//                 accel.x += delta.x * s;
-//                 accel.y += delta.y * s;
-//                 accel.z += delta.z * s;
-//             }
-//         }
-
-//         // Update velocity using acceleration and damping
-//         vel.x += deltaTime * accel.x;
-//         vel.y += deltaTime * accel.y;
-//         vel.z += deltaTime * accel.z;
-
-//         vel.x *= damping;
-//         vel.y *= damping;
-//         vel.z *= damping;
-
-//         // Update position using velocity
-//         pos.x += vel.x * deltaTime;
-//         pos.y += vel.y * deltaTime;
-//         pos.z += vel.z * deltaTime;
-
-//         newPos[idx] = pos;
-//         newVel[idx] = vel;
-//     }
-// }
-
-// __global__
-// void integrateBodies(float4* newPos, float4* newVel, float4* oldPos, float4* oldVel, 
-//                      float deltaTime, float damping, float mass, int numBodies) 
-// {
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-//     if (idx < numBodies) {
-//         float4 pos = oldPos[idx];
-//         float4 vel = oldVel[idx];
-//         float4 accel = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-//         for (int i = 0; i < numBodies; i++) {
-//             if (i != idx) {
-//                 float4 pos2 = oldPos[i];
-//                 float4 delta = pos2 - pos;
-
-//                 float distSqr = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-//                 if (distSqr < 10 * SOFTENING) { // only calculate gravity if particles are close enough
-//                     float invDist = rsqrtf(distSqr + SOFTENING);
-
-//                     float s = mass * powf(invDist, 3.0f);
-
-//                     accel.x += delta.x * s;
-//                     accel.y += delta.y * s;
-//                     accel.z += delta.z * s;
-//                 }
-//             }
-//         }
-
-//         // Update velocity using acceleration and damping
-//         vel.x += deltaTime * accel.x;
-//         vel.y += deltaTime * accel.y;
-//         vel.z += deltaTime * accel.z;
-
-//         vel.x *= damping;
-//         vel.y *= damping;
-//         vel.z *= damping;
-
-//         // Update position using velocity
-//         pos.x += vel.x * deltaTime;
-//         pos.y += vel.y * deltaTime;
-//         pos.z += vel.z * deltaTime;
-
-//         newPos[idx] = pos;
-//         newVel[idx] = vel;
-//     }
-// }
-
-
-
-
-
-// void initParticles(float* hPos, float* hVel, int numBodies) {
-//     for (int i = 0; i < numBodies; i++) {
-//         hPos[i * 4] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-//         hPos[i * 4 + 1] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-//         hPos[i * 4 + 2] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-//         hPos[i * 4 + 3] = 1.0f;
-//         hVel[i * 4] = 0.0f;
-//         hVel[i * 4 + 1] = 0.0f;
-//         hVel[i * 4 + 2] = 0.0f;
-//         hVel[i * 4 + 3] = 0.0f;
-//     }
-// }

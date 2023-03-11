@@ -73,11 +73,6 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /home/user/repos
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/kernel.cu
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/n_body_sim_1.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /home/user/repos/Two_body_project/src/n_body_sim_2.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/GL/freeglut_std.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/GL/gl.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/GL/glew.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/GL/glu.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/GL/glut.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/alloca.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno-base.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/asm-generic/errno.h
@@ -150,7 +145,6 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cerrno
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/clocale
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cmath
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstddef
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdint
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdio
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/include/c++/12/cstdlib
@@ -341,7 +335,6 @@ CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/crt/sm_90_rt.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/crt/sm_90_rt.hpp
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_device_runtime_api.h
-CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_gl_interop.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_runtime.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/cuda_runtime_api.h
 CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o: /usr/local/cuda-12.0/include/device_atomic_functions.h

@@ -34,16 +34,18 @@ int main()
 {
     const int numIterations = 1000;
 
-    //determines the time step used for each iteration in the simulation. Lower value = more accurate simulation higher value = faster simulation
-    const float deltaTime = 5.1;
+    //determines the time step used for each iteration in the simulation. 
+    //Lower value = more accurate simulation higher value = faster simulation
+    const float deltaTime = 100.1;
 
     // Lowers the vleocity of particles over time to simulate friction
-    const float damping = 0.95;
+    const float damping = 0.999;
 
-    int numBodies = 100;
+    int numBodies = 4000;
 
     // Call the simulation function with the user's inputs
-    simulateNbodySystem2(numBodies, numIterations, deltaTime, damping);
+    //simulateNbodySystem2(numBodies, numIterations, deltaTime, damping);
+    runNbodySimulation(numBodies, numIterations, deltaTime, damping);
 
     return 0;
 }
