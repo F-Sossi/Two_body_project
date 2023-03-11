@@ -26,9 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cuda_runtime.h>
-#include <GL/glew.h>
-#include <GL/glut.h>
-#include <cuda_gl_interop.h>
 #include "n_body_sim_1.h"
 #include "n_body_sim_2.h"
 

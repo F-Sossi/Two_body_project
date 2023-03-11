@@ -5,7 +5,6 @@
 #include <random>
 #include <fstream>
 #include <cuda_runtime.h>
-#include <cuda_gl_interop.h>
 
 constexpr float SOFTENING    = 0.00125f;
 const float GRAVITY_CONSTANT = 6.67430e-11f;
