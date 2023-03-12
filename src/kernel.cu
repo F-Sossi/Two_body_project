@@ -41,11 +41,11 @@ int main()
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.999;
 
-    int numBodies = 4000;
+    int numBodies = 100;
 
     // Call the simulation function with the user's inputs
-    // runNBodySimulationParallel(numBodies, numIterations, deltaTime, damping);
-    runNbodySimulation(numBodies, numIterations, deltaTime, damping);
+    runNBodySimulationParallel(numBodies, numIterations, deltaTime, damping);
+    //runNbodySimulation(numBodies, numIterations, deltaTime, damping);
 
     return 0;
 }

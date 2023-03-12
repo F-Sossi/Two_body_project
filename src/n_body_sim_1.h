@@ -92,6 +92,8 @@ void initBodies2(Body *bodies, int numBodies)
         bodies[i].position.z = posDist(gen);
         bodies[i].position.w = 1.0f;
 
+        //printf("x: %f, y: %f, z: %f\n", bodies[i].position.x, bodies[i].position.y, bodies[i].position.z);
+
         // Generate random values for velocity
         bodies[i].velocity.x = velDist(gen);
         bodies[i].velocity.y = velDist(gen);
@@ -122,9 +124,10 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
     {
         float4 position      = bodies[col].position; // m_i
         float4 next_position = bodies[row].position; // m_j
-
-        printf("Col: %d (%f, %f, %f)\n", col, position.x, position.y, position.z); 
-        printf("Row: %d (%f, %f, %f)\n", row, next_position.x, next_position.y, next_position.z); 
+        
+        //__syncthreads();
+        // printf("Col: %d (%f, %f, %f)\n", col, position.x, position.y, position.z); 
+        // printf("Row: %d (%f, %f, %f)\n", row, next_position.x, next_position.y, next_position.z); 
 
         // Compute distance
         float4 distance  = next_position - position;
@@ -139,7 +142,7 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
             float invDist = rsqrtf(squared_norm + SOFTENING);
 
             // Calculate the force of gravity between the two particles
-            float  mass_x_invDist = bodies[col].mass * powf(invDist, 3.0f);
+            float  mass_x_invDist = bodies[row].mass * powf(invDist, 3.0f); // m_j /(|r^2| + e )^3/2 
 
             acceleration.x = distance.x * mass_x_invDist;
             acceleration.y = distance.y * mass_x_invDist;
@@ -151,10 +154,11 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
         atomicAdd(&(bodies[col].acceleration.y), acceleration.y);
         atomicAdd(&(bodies[col].acceleration.z), acceleration.z);
         atomicAdd(&(bodies[col].acceleration.w), 0);
-
-        // Wait for completion
-        __syncthreads();
     }
+
+    // Wait for completion
+    __syncthreads();
+
 }
 
 __global__
@@ -175,10 +179,10 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
 
     float4 velocity = bodies_n0[blockIdx.x].velocity;
 
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.x), velocity.x * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.y), velocity.y * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.z), velocity.z * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.w), 0);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.x), velocity.x * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.y), velocity.y * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.z), velocity.z * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.w), 0);
 
     // Data will stay persistent in-between kernel calls
     bodies_n1[blockIdx.x] = bodies_n0[blockIdx.x];
@@ -255,10 +259,11 @@ void runNBodySimulationParallel(int numBodies, int numIterations, float deltaTim
         // Print the positions of the first few particles for debugging purposes
         for (int j = 0; j < 10; j++) 
         {
-            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[i].position.x, 
-                    bodies_h[i].position.y, bodies_h[i].position.z);
+            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
+                    bodies_h[j].position.y, bodies_h[j].position.z);
         }
     }
+
 
     // Cleanup
     delete[] bodies_h;
