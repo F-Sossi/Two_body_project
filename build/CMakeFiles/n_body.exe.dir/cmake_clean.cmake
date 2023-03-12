@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o"
+  "CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o"
   "n_body.exe"
   "n_body.exe.pdb"
 )

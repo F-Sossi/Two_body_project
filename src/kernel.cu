@@ -28,6 +28,7 @@
 #include <cuda_runtime.h>
 #include "n_body_sim_1.h"
 #include "n_body_sim_2.h"
+#include "leap_frog.h"
 
 
 int main()
@@ -36,16 +37,22 @@ int main()
 
     //determines the time step used for each iteration in the simulation. 
     //Lower value = more accurate simulation higher value = faster simulation
-    const float deltaTime = 100.1;
+    const float deltaTime = 10.1;
 
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.999;
 
-    int numBodies = 4000;
+    int numBodies = 1000;
+
+    LeapFrogIntegrator integrator(numBodies);
+
+    integrator.step(numIterations, deltaTime);
+
+
 
     // Call the simulation function with the user's inputs
     //simulateNbodySystem2(numBodies, numIterations, deltaTime, damping);
-    runNbodySimulation(numBodies, numIterations, deltaTime, damping);
+    //runNbodySimulation(numBodies, numIterations, deltaTime, damping);
 
     return 0;
 }

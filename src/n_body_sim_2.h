@@ -4,11 +4,14 @@
 #include <iostream>
 #include <random>
 #include <string.h>
+#include <cfloat>
+#include <cmath>
 #include <fstream>
 #include <cuda_runtime.h>
 #include "n_body_sim_1.h"
 
 constexpr int NUM_THREADS = 1024;
+constexpr float Epsilon = 1e-4f;
 
 // Addition
 __host__ __device__ float4 operator+(const float4& a, const float4& b)
@@ -81,6 +84,17 @@ __host__ __device__ float4& operator-=(float4& a, const float4& b)
     return a;
 }
 
+// Multiplication assignment
+__host__ __device__ float4& operator*=(float4& a, const float b)
+{
+    a.x *= b;
+    a.y *= b;
+    a.z *= b;
+    a.w *= b;
+    return a;
+}
+
+
 
 void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, float deltaTime, float damping, int numBodies,
                            Body *bodies_d);
@@ -88,6 +102,7 @@ void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, float deltaTime, 
 __global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
 
 __global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
+__global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
 
 void initBodiesTest2(Body *bodies, int numBodies);
 
@@ -139,7 +154,7 @@ void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1,
     int threadsPerBlock = NUM_THREADS;
     int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
 
-    integrate2<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime, damping, 1.0f, 100.0f);
+    integrate3<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime, damping, 1.0f, 100.0f);
 
     cudaDeviceSynchronize();
 
@@ -159,6 +174,91 @@ void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
     }
     outFile.close();
 }
+
+__global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+    
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < numBodies) {
+
+        Body currentBody = bodies[idx];
+        float4 accel = currentBody.acceleration;
+
+        // Determine the starting index and stride for this thread
+        int start = idx;
+
+        // Loop over the chunk of memory that this thread is responsible for
+        for (int i = start; i < numBodies; i++) {
+            if (i != idx) {
+                Body otherBody = bodies[i];
+
+                // Compute distance
+                float4 delta_p = otherBody.position - currentBody.position;
+
+                // Scale delta_p to prevent overflow
+                float max_delta = fmaxf(fmaxf(fabsf(delta_p.x), fabsf(delta_p.y)), fabsf(delta_p.z));
+                if (max_delta > FLT_MAX / sqrtf(3.0f)) {
+                    delta_p *= FLT_MAX / max_delta / sqrtf(3.0f);
+                }
+
+                float distSqr = delta_p.x * delta_p.x + delta_p.y * delta_p.y + delta_p.z * delta_p.z;
+
+                // Only calculate gravity if particles are close enough
+                if (distSqr < 1000) {
+                    // Calculate the force of gravity between the two particles reciprocal square root
+                    float invDist = rsqrtf(max(distSqr, 0.0f) + Epsilon);
+                    float s = otherBody.mass * powf(invDist, 3.0f);
+
+                    accel.x += delta_p.x * s;
+                    accel.y += delta_p.y * s;
+                    accel.z += delta_p.z * s;
+                }
+
+                // Check for collision
+                float dist = sqrtf(distSqr);
+                if (dist < 2 * radius) {
+                    // Calculate the relative velocity of the two bodies
+                    float4 delta_v = otherBody.velocity - currentBody.velocity;
+
+                    // Calculate the normal vector between the two bodies
+                    float4 normal = delta_p / dist;
+
+                    // Calculate the impulse magnitude
+                    float impulse_mag = dot(delta_v, normal) * (1 + restitution) / (1 / currentBody.mass + 1 / otherBody.mass);
+
+                    // Calculate the impulse
+                    float4 impulse = impulse_mag * normal;
+
+                    // Update the velocities of the two bodies
+                    currentBody.velocity += impulse / currentBody.mass;
+                    otherBody.velocity -= impulse / otherBody.mass;
+
+                    // Move the bodies apart to avoid overlapping
+                    float4 separation = (2 * radius - dist) * normal;
+                    currentBody.position -= separation / 2;
+                    otherBody.position += separation / 2;
+                }
+            }
+        }
+
+        // Update velocity using acceleration and damping
+        currentBody.velocity.x += deltaTime * accel.x;
+        currentBody.velocity.y += deltaTime * accel.y;
+        currentBody.velocity.z += deltaTime * accel.z;
+
+        currentBody.velocity.x *= damping;
+        currentBody.velocity.y *= damping;
+        currentBody.velocity.z *= damping;
+        // Update position using velocity
+        currentBody.position.x += currentBody.velocity.x * deltaTime;
+        currentBody.position.y += currentBody.velocity.y * deltaTime;
+        currentBody.position.z += currentBody.velocity.z * deltaTime;
+
+        // Update the body in the array
+        upd_bodies[idx] = currentBody;
+    }
+}
+
 
 
 
@@ -247,57 +347,66 @@ __global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float 
 
 __global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
     
-    int idx = blockIdx.x * blockDim.x * blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
-    
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
     if (idx < numBodies) {
-        
+
         Body currentBody = bodies[idx];
         float4 accel = currentBody.acceleration;
-        for (int row = idx; row < numBodies; row += blockDim.x * blockDim.y) {
-            
-            for (int col = 0; col < blockDim.x; col++) {
-                int i = row + threadIdx.y * blockDim.x + col;
-                if (i >= numBodies) {
-                    break;
+
+        // Determine the starting index and stride for this thread
+        int start = idx;
+
+        // Loop over the chunk of memory that this thread is responsible for
+        for (int i = start; i < numBodies; i++) {
+            if (i != idx) {
+                Body otherBody = bodies[i];
+
+                // Compute distance
+                float4 delta_p = otherBody.position - currentBody.position;
+
+                // Scale delta_p to prevent overflow
+                float max_delta = fmaxf(fmaxf(fabsf(delta_p.x), fabsf(delta_p.y)), fabsf(delta_p.z));
+                if (max_delta > FLT_MAX / sqrtf(3.0f)) {
+                    delta_p *= FLT_MAX / max_delta / sqrtf(3.0f);
                 }
-                if (i != idx) {
-                    
-                    Body otherBody = bodies[i];
-                    float4 delta_p = otherBody.position - currentBody.position;
-                    float distSqr = delta_p.x * delta_p.x + delta_p.y * delta_p.y + delta_p.z * delta_p.z;
-                    
-                    if (distSqr < 10 * SOFTENING) {
-                        float invDist = rsqrtf(distSqr + SOFTENING);
-                        float s = otherBody.mass * powf(invDist, 3.0f);
-                        accel.x += delta_p.x * s;
-                        accel.y += delta_p.y * s;
-                        accel.z += delta_p.z * s;
-                    }
-                    float dist = sqrtf(distSqr);
-                    
-                    if (dist < 2 * radius) {
-                        float4 delta_v = otherBody.velocity - currentBody.velocity;
-                        float4 normal = delta_p / dist;
-                        float impulse_mag = dot(delta_v, normal) * (1 + restitution) / (1 / currentBody.mass + 1 / otherBody.mass);
-                        float4 impulse = impulse_mag * normal;
-                        currentBody.velocity += impulse / currentBody.mass;
-                        otherBody.velocity -= impulse / otherBody.mass;
-                        float4 separation = (2 * radius - dist) * normal;
-                        currentBody.position -= separation / 2;
-                        otherBody.position += separation / 2;
-                    }
+
+                float distSqr = delta_p.x * delta_p.x + delta_p.y * delta_p.y + delta_p.z * delta_p.z;
+
+                // Only calculate gravity if particles are close enough
+                if (distSqr < 1000) {
+                    // Calculate the force of gravity between the two particles reciprocal square root
+                    float invDist = rsqrtf(max(distSqr, 0.0f) + Epsilon);
+                    float s = otherBody.mass * powf(invDist, 3.0f);
+
+                    accel.x += delta_p.x * s;
+                    accel.y += delta_p.y * s;
+                    accel.z += delta_p.z * s;
                 }
             }
         }
+
+        // Check for NaN values in accel and set to zero if found
+        if (isnan(accel.x) || isnan(accel.y) || isnan(accel.z)) {
+            accel.x = 0.0f;
+            accel.y = 0.0f;
+            accel.z = 0.0f;
+        }
+
+        // Update velocity using acceleration and damping
         currentBody.velocity.x += deltaTime * accel.x;
         currentBody.velocity.y += deltaTime * accel.y;
         currentBody.velocity.z += deltaTime * accel.z;
+
         currentBody.velocity.x *= damping;
         currentBody.velocity.y *= damping;
         currentBody.velocity.z *= damping;
+        // Update position using velocity
         currentBody.position.x += currentBody.velocity.x * deltaTime;
         currentBody.position.y += currentBody.velocity.y * deltaTime;
         currentBody.position.z += currentBody.velocity.z * deltaTime;
+
+        // Update the body in the array
         upd_bodies[idx] = currentBody;
     }
 }
