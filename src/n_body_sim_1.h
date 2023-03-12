@@ -5,6 +5,7 @@
 #include <random>
 #include <fstream>
 #include <cuda_runtime.h>
+#include <vector_functions.h>
 
 constexpr float SOFTENING    = 0.00125f;
 const float GRAVITY_CONSTANT = 6.67430e-11f;
@@ -110,47 +111,46 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 {
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-
-    unsigned int row = (index / numBodies); // 0 to N down
-    unsigned int col = (index % numBodies); // 0 to N across
+    const int col   = blockIdx.x * blockDim.x + threadIdx.x;
+    const int row   = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    float4 acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
     // We will have (NxN) - ((N-1)x(N-1)) wasted threads
     // Also the worker thread has to be less than NxN
-    if ((row != col) || (index < (numBodies * numBodies)))
+    if ((row != col) && (row < numBodies) && (col < numBodies))   
     {
-        float4 position      = bodies[row].position;
-        float4 next_position = bodies[col].position;
+        float4 position      = bodies[col].position; // m_i
+        float4 next_position = bodies[row].position; // m_j
 
-        float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-        float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-        float4 delta_acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+        printf("Col: %d (%f, %f, %f)\n", col, position.x, position.y, position.z); 
+        printf("Row: %d (%f, %f, %f)\n", row, next_position.x, next_position.y, next_position.z); 
 
         // Compute distance
         float4 distance  = next_position - position;
 
         // Compute distance squared
-        float distance_squared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
+        float squared_norm = (distance.x * distance.x) + (distance.y * distance.y) + (distance.z * distance.z);
 
         // Only calculate gravity if particles are close enough
-        if (distance_squared < 10 * SOFTENING) 
+        if (squared_norm < 10 * SOFTENING) 
         {
             // Calculate the force of gravity between the two particles reciprocal square root
-            float invDist = rsqrtf(distance_squared + SOFTENING);
+            float invDist = rsqrtf(squared_norm + SOFTENING);
 
             // Calculate the force of gravity between the two particles
-            float s = bodies[blockIdx.x].mass * powf(invDist, 3.0f);
+            float  mass_x_invDist = bodies[col].mass * powf(invDist, 3.0f);
 
-            delta_acceleration.x = distance.x * s;
-            delta_acceleration.y = distance.y * s;
-            delta_acceleration.z = distance.z * s;
+            acceleration.x = distance.x * mass_x_invDist;
+            acceleration.y = distance.y * mass_x_invDist;
+            acceleration.z = distance.z * mass_x_invDist;
         }
 
         // Update the acceleration
-        atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
+        atomicAdd(&(bodies[col].acceleration.x), acceleration.x);
+        atomicAdd(&(bodies[col].acceleration.y), acceleration.y);
+        atomicAdd(&(bodies[col].acceleration.z), acceleration.z);
+        atomicAdd(&(bodies[col].acceleration.w), 0);
 
         // Wait for completion
         __syncthreads();
@@ -187,12 +187,13 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
                           float deltaTime, float damping, int numBodies)
 {
-    unsigned int numThreads = numBodies * numBodies;
-  
-    unsigned int numBlocks       = getNumBlocks(numThreads);
-    unsigned int threadsPerBlock = getNumThreads(numThreads);
+    unsigned int threadsPerBlock = getNumThreads(numBodies);
+    const int numBlocks          = (numBodies + threadsPerBlock - 1)/threadsPerBlock;
 
-    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping);
+    const dim3 gridSize(numBlocks, numBlocks);
+    const dim3 blockSize(threadsPerBlock , threadsPerBlock);
+
+    integrate<<<gridSize, blockSize>>>(bodies_n0, numBodies, deltaTime, damping);
 
     cudaDeviceSynchronize();
 
