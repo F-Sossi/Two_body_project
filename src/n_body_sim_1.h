@@ -5,6 +5,7 @@
 #include <random>
 #include <fstream>
 #include <cuda_runtime.h>
+#include <vector_functions.h>
 
 constexpr float SOFTENING    = 0.00125f;
 const float GRAVITY_CONSTANT = 6.67430e-11f;
@@ -91,6 +92,8 @@ void initBodies2(Body *bodies, int numBodies)
         bodies[i].position.z = posDist(gen);
         bodies[i].position.w = 1.0f;
 
+        //printf("x: %f, y: %f, z: %f\n", bodies[i].position.x, bodies[i].position.y, bodies[i].position.z);
+
         // Generate random values for velocity
         bodies[i].velocity.x = velDist(gen);
         bodies[i].velocity.y = velDist(gen);
@@ -110,51 +113,52 @@ __host__ __device__ float4 operator-(const float4& a, const float4& b)
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 {
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-
-    unsigned int row = (index / numBodies); // 0 to N down
-    unsigned int col = (index % numBodies); // 0 to N across
+    const int col   = blockIdx.x * blockDim.x + threadIdx.x;
+    const int row   = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    float4 acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
     // We will have (NxN) - ((N-1)x(N-1)) wasted threads
     // Also the worker thread has to be less than NxN
-    if ((row != col) || (index < (numBodies * numBodies)))
+    if ((row != col) && (row < numBodies) && (col < numBodies))   
     {
-        float4 position      = bodies[row].position;
-        float4 next_position = bodies[col].position;
-
-        float4 delta_p = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-        float4 delta_v = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-        float4 delta_acceleration = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+        float4 position      = bodies[col].position; // m_i
+        float4 next_position = bodies[row].position; // m_j
+        
+        //__syncthreads();
+        // printf("Col: %d (%f, %f, %f)\n", col, position.x, position.y, position.z); 
+        // printf("Row: %d (%f, %f, %f)\n", row, next_position.x, next_position.y, next_position.z); 
 
         // Compute distance
         float4 distance  = next_position - position;
 
         // Compute distance squared
-        float distance_squared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
+        float squared_norm = (distance.x * distance.x) + (distance.y * distance.y) + (distance.z * distance.z);
 
         // Only calculate gravity if particles are close enough
-        if (distance_squared < 10 * SOFTENING) 
+        if (squared_norm < 10 * SOFTENING) 
         {
             // Calculate the force of gravity between the two particles reciprocal square root
-            float invDist = rsqrtf(distance_squared + SOFTENING);
+            float invDist = rsqrtf(squared_norm + SOFTENING);
 
             // Calculate the force of gravity between the two particles
-            float s = bodies[blockIdx.x].mass * powf(invDist, 3.0f);
+            float  mass_x_invDist = bodies[row].mass * powf(invDist, 3.0f); // m_j /(|r^2| + e )^3/2 
 
-            delta_acceleration.x = distance.x * s;
-            delta_acceleration.y = distance.y * s;
-            delta_acceleration.z = distance.z * s;
+            acceleration.x = distance.x * mass_x_invDist;
+            acceleration.y = distance.y * mass_x_invDist;
+            acceleration.z = distance.z * mass_x_invDist;
         }
 
         // Update the acceleration
-        atomicAdd(&(bodies[blockIdx.x].acceleration.x), delta_acceleration.x);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.y), delta_acceleration.y);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.z), delta_acceleration.z);
-        atomicAdd(&(bodies[blockIdx.x].acceleration.w), delta_acceleration.w);
-
-        // Wait for completion
-        __syncthreads();
+        atomicAdd(&(bodies[col].acceleration.x), acceleration.x);
+        atomicAdd(&(bodies[col].acceleration.y), acceleration.y);
+        atomicAdd(&(bodies[col].acceleration.z), acceleration.z);
+        atomicAdd(&(bodies[col].acceleration.w), 0);
     }
+
+    // Wait for completion
+    __syncthreads();
+
 }
 
 __global__
@@ -164,61 +168,42 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
     // among the N bodies. Now the velocity and position
     // must be updated.
     float4 acceleration = bodies_n0[blockIdx.x].acceleration;
-    float4 velocity     = bodies_n0[blockIdx.x].velocity;
-    float4 position     = bodies_n0[blockIdx.x].position;
 
     // Update velocity using acceleration and damping
-    velocity.x += deltaTime * acceleration.x;
-    velocity.y += deltaTime * acceleration.y;
-    velocity.z += deltaTime * acceleration.z;
+    atomicAdd(&(bodies_n0[blockIdx.x].velocity.x), acceleration.x * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].velocity.y), acceleration.y * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].velocity.z), acceleration.z * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].velocity.w), 0);
 
-    bodies_n1[blockIdx.x].velocity = velocity;
-
-    // Update position using velocity
-    position.x = velocity.x * deltaTime;
-    position.y = velocity.y * deltaTime;
-    position.y = velocity.z * deltaTime;
-
-    bodies_n1[blockIdx.x].position = position;
-
-    // Wait for completion across all blocks
     __syncthreads();
+
+    float4 velocity = bodies_n0[blockIdx.x].velocity;
+
+    atomicAdd(&(bodies_n0[blockIdx.x].position.x), velocity.x * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.y), velocity.y * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.z), velocity.z * deltaTime);
+    atomicAdd(&(bodies_n0[blockIdx.x].position.w), 0);
+
+    // Data will stay persistent in-between kernel calls
+    bodies_n1[blockIdx.x] = bodies_n0[blockIdx.x];
 }
 
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
-                          float deltaTime, float damping, int numBodies,
-                          Body *bodies_d)
+                          float deltaTime, float damping, int numBodies)
 {
-    unsigned int numThreads = numBodies * numBodies;
-  
-    //cudaEvent_t is_complete;
-    //cudaEventCreate(&is_complete);
+    unsigned int threadsPerBlock = getNumThreads(numBodies);
+    const int numBlocks          = (numBodies + threadsPerBlock - 1)/threadsPerBlock;
 
-    unsigned int numBlocks       = getNumBlocks(numThreads);
-    unsigned int threadsPerBlock = getNumThreads(numThreads);
+    const dim3 gridSize(numBlocks, numBlocks);
+    const dim3 blockSize(threadsPerBlock , threadsPerBlock);
 
-    integrate<<<numBlocks, threadsPerBlock>>>(bodies_n0, numBodies, deltaTime, damping);
-
-    // Signal that the work is done
-    //cudaEventRecord(is_complete);
-
-    //cudaEventSynchronize(is_complete);
+    integrate<<<gridSize, blockSize>>>(bodies_n0, numBodies, deltaTime, damping);
 
     cudaDeviceSynchronize();
 
     update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
 
-    //cudaDeviceSynchronize();
-
-    // Swap old and new position/velocity arrays
-    Body *temp   = bodies_n0;
-    bodies_n0    = bodies_n1;
-    bodies_n1    = temp;
-
-    // Copy updated position and velocity arrays back to device for output
-    cudaMemcpy(bodies_d, bodies_n0, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
-
-    //cudaEventDestroy(is_complete);
+    cudaDeviceSynchronize();
 }
 
 void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName) 
@@ -233,11 +218,10 @@ void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName)
     outFile.close();
 }
 
-void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, float damping)
+void runNBodySimulationParallel(int numBodies, int numIterations, float deltaTime, float damping)
 {
     // Initial conditions
     Body *bodies_h; // Host body data
-    Body *bodies_d; // device body data
 
     // N-body system variables used for integration
     Body *bodies_n0;
@@ -246,15 +230,14 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     // Allocate the memory for the host
     bodies_h = new Body[numBodies];
 
-    cudaMalloc(&bodies_d,  numBodies * sizeof(Body));
     cudaMalloc(&bodies_n0, numBodies * sizeof(Body));
     cudaMalloc(&bodies_n1, numBodies * sizeof(Body));
 
+    // Write particle positions to file for visualization
+    char fileName[100];
+
     // Initialize the data
     initBodies2(bodies_h, numBodies);
-
-    // Next, copy particle data to device to start the run
-    cudaMemcpy(bodies_d, bodies_h, numBodies * sizeof(float4), cudaMemcpyHostToDevice);
 
     // Set up the initial conditions    
     cudaMemcpy(bodies_n0, bodies_h, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
@@ -263,13 +246,10 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
     for (int i = 0; i < numIterations; i++) 
     {
         // Integrate the N-body system
-        integrateNbodySystem(bodies_n0, bodies_n1, deltaTime, damping, numBodies, bodies_d);
+        integrateNbodySystem(bodies_n0, bodies_n1, deltaTime, damping, numBodies);
 
-        // Copy particle data back to host
-        cudaMemcpy(bodies_h, bodies_d, numBodies * sizeof(Body), cudaMemcpyDeviceToHost);
-
-        // Write particle positions to file for visualization
-        char fileName[100];
+        // nCopy particle position (n1) back to host
+        cudaMemcpy(bodies_h, bodies_n1, numBodies * sizeof(Body), cudaMemcpyDeviceToHost);
 
         // Create filename with current iteration number
         sprintf(fileName, "positions_%d.txt", i);
@@ -279,14 +259,14 @@ void simulateNbodySystem(int numBodies, int numIterations, float deltaTime, floa
         // Print the positions of the first few particles for debugging purposes
         for (int j = 0; j < 10; j++) 
         {
-            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[i].position.x, 
-                    bodies_h[i].position.y, bodies_h[i].position.z);
+            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
+                    bodies_h[j].position.y, bodies_h[j].position.z);
         }
     }
 
+
     // Cleanup
     delete[] bodies_h;
-    cudaFree(bodies_d);
     cudaFree(bodies_n0);
     cudaFree(bodies_n1);
 }

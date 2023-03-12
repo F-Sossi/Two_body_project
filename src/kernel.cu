@@ -41,8 +41,7 @@ int main()
 
     // Lowers the vleocity of particles over time to simulate friction
     const float damping = 0.999;
-
-    int numBodies = 1000;
+       int numBodies = 1000;
 
     LeapFrogIntegrator integrator(numBodies);
 
@@ -52,9 +51,11 @@ int main()
 
     // Call the simulation function with the user's inputs
     //simulateNbodySystem2(numBodies, numIterations, deltaTime, damping);
+
     //runNbodySimulation(numBodies, numIterations, deltaTime, damping);
 
     return 0;
+
 }
 
 
