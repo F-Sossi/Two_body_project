@@ -44,7 +44,7 @@ int main()
     int numBodies = 4000;
 
     // Call the simulation function with the user's inputs
-    //simulateNbodySystem2(numBodies, numIterations, deltaTime, damping);
+    // runNBodySimulationParallel(numBodies, numIterations, deltaTime, damping);
     runNbodySimulation(numBodies, numIterations, deltaTime, damping);
 
     return 0;
