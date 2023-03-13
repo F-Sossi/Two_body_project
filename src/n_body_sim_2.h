@@ -1,3 +1,19 @@
+//---------------------------------------------------------------------------
+// n_body_sim_2.h
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. simulateNbodySystem2 function
+// 2. runNbodySimulation function
+// 3. device functions for working with float4
+// 4. kernel functions for integration and force calculation
+// 5 NbodySystem class
+//  5.1 NbodySystem::integrate function
+//  5.2 NbodySystem::calculateForces function
+// 6. writePositionsToFile function
+//---------------------------------------------------------------------------
+
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,21 +109,21 @@ __host__ __device__ float4& operator*=(float4& a, const float b)
     a.w *= b;
     return a;
 }
-
-
-
+// forward declarations---------------------------------------------------------------------------
 void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, float deltaTime, float damping, int numBodies,
                            Body *bodies_d);
-
 __global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
-
 __global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
 __global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius);
-
 void initBodiesTest2(Body *bodies, int numBodies);
 
-
-
+//---------------------------------------------------------------------------
+// Function: initBodiesTest2 initializes the bodies to random values
+// Input:
+// 1. bodies: pointer to the array of bodies
+// 2. numBodies: number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 void initBodiesTest2(Body *bodies, int numBodies) {
     std::mt19937_64 gen(std::random_device{}());
     std::uniform_real_distribution<float> posDist(1000.0f, 50000.0f);
@@ -145,7 +161,17 @@ void initBodiesTest2(Body *bodies, int numBodies) {
 }
 
 
-
+//---------------------------------------------------------------------------
+// Function: integrateNbodySystem2 integrates the system of bodies
+// Input:
+// 1. bodies_n0: pointer to the array of bodies at time n
+// 2. bodies_n1: pointer to the array of bodies at time n+1
+// 3. deltaTime: time step
+// 4. damping: damping factor
+// 5. numBodies: number of bodies
+// 6. bodies_d: pointer to the array of bodies on the device
+// Output: none
+//---------------------------------------------------------------------------
 void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1, 
                            float deltaTime, float damping, int numBodies,
                            Body *bodies_d) {
@@ -154,7 +180,8 @@ void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1,
     int threadsPerBlock = NUM_THREADS;
     int numBlocks = (numBodies + threadsPerBlock - 1) / threadsPerBlock;
 
-    integrate3<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime, damping, 1.0f, 100.0f);
+    integrate3<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies,
+                                                                 deltaTime, damping, 1.0f, 100.0f);
 
     cudaDeviceSynchronize();
 
@@ -167,6 +194,15 @@ void integrateNbodySystem2(Body *&bodies_n0, Body *&bodies_n1,
     cudaMemcpy(bodies_d, bodies_n1, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
 }
 
+//---------------------------------------------------------------------------
+// Function: writePositionDataToFile writes the position data to a file
+// Input:
+// 1. hPos: pointer to the array of positions
+// 2. numBodies: number of bodies
+// 3. fileName: name of the file
+// Output: positionsX.txt file containing the position data where X is step
+//         number
+//---------------------------------------------------------------------------
 void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
     std::ofstream outFile("../data/" + std::string(fileName));
     for (int i = 0; i < numBodies; i++) {
@@ -175,7 +211,20 @@ void writePositionDataToFile(float* hPos, int numBodies, const char* fileName) {
     outFile.close();
 }
 
-__global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+//---------------------------------------------------------------------------
+// Function: integrate4 integrates the system of bodies
+// Input:
+// 1. bodies: pointer to the array of bodies
+// 2. upd_bodies: pointer to the array of updated bodies
+// 3. numBodies: number of bodies
+// 4. deltaTime: time step
+// 5. damping: damping factor
+// 6. restitution: restitution factor
+// 7. radius: radius of the bodies
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping,
+                           float restitution, float radius) {
     
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -259,10 +308,20 @@ __global__ void integrate4(Body *bodies, Body* upd_bodies, int numBodies, float 
     }
 }
 
-
-
-
-__global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+//---------------------------------------------------------------------------
+// Function: integrate2 integrates the system of bodies
+// Input:
+// 1. bodies: pointer to the array of bodies
+// 2. upd_bodies: pointer to the array of updated bodies
+// 3. numBodies: number of bodies
+// 4. deltaTime: time step
+// 5. damping: damping factor
+// 6. restitution: restitution factor
+// 7. radius: radius of the bodies
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping,
+                           float restitution, float radius){
     
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -345,7 +404,20 @@ __global__ void integrate2(Body *bodies, Body* upd_bodies, int numBodies, float 
     }
 }
 
-__global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping, float restitution, float radius) {
+//---------------------------------------------------------------------------
+// Function: integrate3 integrates the system of bodies
+// Input:
+// 1. bodies: pointer to the array of bodies
+// 2. upd_bodies: pointer to the array of updated bodies
+// 3. numBodies: number of bodies
+// 4. deltaTime: time step
+// 5. damping: damping factor
+// 6. restitution: restitution factor
+// 7. radius: radius of the bodies
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float deltaTime, float damping,
+                           float restitution, float radius) {
     
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -411,8 +483,12 @@ __global__ void integrate3(Body *bodies, Body* upd_bodies, int numBodies, float 
     }
 }
 
-
-
+//---------------------------------------------------------------------------
+// Class: NbodySystem
+// Input:
+// 1. numBodies: number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 class NbodySystem {
 private:
     Body *bodies_h;
@@ -441,7 +517,14 @@ public:
         // Set up the initial conditions    
         cudaMemcpy(bodies_n0, bodies_h, numBodies * sizeof(Body), cudaMemcpyHostToDevice);
     }
-
+    //---------------------------------------------------------------------------
+    // Method: simulate runs the simulation
+    // Input:
+    // 1. numIterations: number of iterations
+    // 2. deltaTime: time step
+    // 3. damping: damping factor
+    // Output: none
+    //---------------------------------------------------------------------------
     void simulate(int numIterations, float deltaTime, float damping) {
         // Run simulation for the specified number of iterations
         for (int i = 0; i < numIterations; i++) {
@@ -470,6 +553,15 @@ public:
     }
 };
 
+//---------------------------------------------------------------------------
+// Function: runNbodySimulation runs the simulation
+// Input:
+// 1. numBodies: number of bodies
+// 2. numIterations: number of iterations
+// 3. deltaTime: time step
+// 4. damping: damping factor
+// Output: none
+//---------------------------------------------------------------------------
 void runNbodySimulation(int numBodies, int numIterations, float deltaTime, float damping) {
     NbodySystem nbodySystem(numBodies);
 
