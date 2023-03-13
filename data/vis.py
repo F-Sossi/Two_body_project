@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
 
-ZONE = 10000000
+ZONE = 10000
 NZONE = 3000
 
 # Variables for camera position and zoom level

@@ -99,7 +99,7 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
 
     // Initialize particle forces.
     forces.resize(num_bodies * 3);
-    // ...
+    std::fill(forces.begin(), forces.end(), 0.0);
 }
 
 void LeapFrogIntegrator::step(int num_steps, double dt)

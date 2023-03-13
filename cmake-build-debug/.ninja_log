@@ -1,7 +1,13 @@
 # ninja log v5
 0	1662	1678605665028763801	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
 0	1662	1678605665028763801	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
-0	45	1678605716552206571	build.ninja	1cd98009f32120b4
+0	45	1678670230056175071	build.ninja	1cd98009f32120b4
 0	1545	1678605718100189891	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
 0	1545	1678605718100189891	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
 1545	1606	1678605718164189201	n_body.exe	f8368fff8d1b0890
+0	44	1678670230056175071	build.ninja	1cd98009f32120b4
+0	1473	1678670231528140617	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+0	1473	1678670231528140617	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+1	1527	1678670231584139307	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+1	1527	1678670231584139307	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+1527	1570	1678670231628138279	n_body.exe	f8368fff8d1b0890
