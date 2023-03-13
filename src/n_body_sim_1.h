@@ -1,3 +1,23 @@
+//---------------------------------------------------------------------------
+// n_body_sim_1.h
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. body struct
+// 2. getNumThreads function
+// 3. getNumBlocks function
+// 4. initBodies function
+// 5. initBodiesTest function
+// 6. initBodies2 function
+// 7. operator functions for float4
+// 8. integrate function
+// 9. update function
+// 10. integrateNbodysystem function
+// 11. writePositionDataToFile function
+// 12. RunNBodySimulationParallel function
+//---------------------------------------------------------------------------
+
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +30,11 @@
 constexpr float SOFTENING    = 0.00125f;
 const float GRAVITY_CONSTANT = 6.67430e-11f;
 
+//---------------------------------------------------------------------------
+// Struct: Body
+// contains the mass, position, velocity and acceleration of a body:
+// Output: none
+//---------------------------------------------------------------------------
 struct Body
 {
     float mass;
@@ -18,6 +43,11 @@ struct Body
     float4 acceleration;
 };
 
+//---------------------------------------------------------------------------
+// Function: getNumThreads
+// Input:  n - number of bodies
+// Output: num_threads - number of threads
+//---------------------------------------------------------------------------
 unsigned int getNumThreads(unsigned int n)
 {
     unsigned int num_threads = 2;
@@ -31,6 +61,11 @@ unsigned int getNumThreads(unsigned int n)
     return num_threads;
 }
 
+//---------------------------------------------------------------------------
+// Function: getNumBlocks
+// Input:  n - number of bodies
+// Output: num_blocks - number of blocks
+//---------------------------------------------------------------------------
 unsigned int getNumBlocks(unsigned int n)
 {
     if (n % 1024 == 0)
@@ -43,6 +78,12 @@ unsigned int getNumBlocks(unsigned int n)
     }
 }
 
+//---------------------------------------------------------------------------
+// Function: initBodies
+// Input:  bodies - array of bodies
+//         numBodies - number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 void initBodies(Body *bodies, int numBodies) 
 {
    for (int i = 0; i < numBodies; i++) 
@@ -59,6 +100,13 @@ void initBodies(Body *bodies, int numBodies)
     }
 }
 
+//---------------------------------------------------------------------------
+// Function: initBodiesTest test function initializes bodies with known values
+// Input:
+//       bodies - array of bodies
+//       numBodies - number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 void initBodiesTest(Body *bodies, int numBodies) 
 {
    for (int i = 0; i < numBodies; i++) 
@@ -76,6 +124,13 @@ void initBodiesTest(Body *bodies, int numBodies)
     }
 }
 
+//---------------------------------------------------------------------------
+// Function: initBodies2 initializes bodies with random values
+// Input:
+//       bodies - array of bodies
+//       numBodies - number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 void initBodies2(Body *bodies, int numBodies) 
 {
     // Create random number generator for each item
@@ -105,11 +160,21 @@ void initBodies2(Body *bodies, int numBodies)
     }
 }
 
+// Device function to add two float4's
 __host__ __device__ float4 operator-(const float4& a, const float4& b)
 {
     return make_float4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 }
 
+//---------------------------------------------------------------------------
+// Kernel: integrate
+// Input:
+//       bodies - array of bodies
+//       numBodies - number of bodies
+//       deltaTime - time step
+//       damping - damping factor
+// Output: none
+//---------------------------------------------------------------------------
 __global__
 void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 {
@@ -161,6 +226,14 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 
 }
 
+//---------------------------------------------------------------------------
+// Kernel: update
+// Input:
+//       bodies_n0 - array of bodies at time n
+//       bodies_n1 - array of bodies at time n+1
+//       deltaTime - time step
+// Output: none
+//---------------------------------------------------------------------------
 __global__
 void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
 {
@@ -188,6 +261,16 @@ void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
     bodies_n1[blockIdx.x] = bodies_n0[blockIdx.x];
 }
 
+//---------------------------------------------------------------------------
+// Function: integrateNbodySystem
+// Input:
+//       bodies_n0 - array of bodies at time n
+//       bodies_n1 - array of bodies at time n+1
+//       deltaTime - time step
+//       damping - damping factor
+//       numBodies - number of bodies
+// Output: none
+//---------------------------------------------------------------------------
 void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1, 
                           float deltaTime, float damping, int numBodies)
 {
@@ -206,6 +289,14 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
     cudaDeviceSynchronize();
 }
 
+//---------------------------------------------------------------------------
+// Function: writePositionDataToFile
+// Input:
+//       bodies - array of bodies
+//       numBodies - number of bodies
+//       fileName - name of the file to write to
+// Output: postionX.txt - position of each body at step X
+//---------------------------------------------------------------------------
 void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName) 
 {
     std::ofstream outFile("../data/" + std::string(fileName));
@@ -218,6 +309,15 @@ void writePositionDataToFile(Body *bodies, int numBodies, const char* fileName)
     outFile.close();
 }
 
+//---------------------------------------------------------------------------
+// Function: runNBodySimulationParallel
+// Input:
+//       numBodies - number of bodies
+//       numIterations - number of iterations
+//       deltaTime - time step
+//       damping - damping factor
+// Output: none
+//---------------------------------------------------------------------------
 void runNBodySimulationParallel(int numBodies, int numIterations, float deltaTime, float damping)
 {
     // Initial conditions
