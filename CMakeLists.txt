@@ -6,7 +6,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(PythonLibs REQUIRED)
 
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -arch=sm_86 -g -G")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --use_fast_math -arch=sm_86 -g -G")
 
 file(GLOB KERNEL_SOURCES "src/kernel.cu")
 file(GLOB N_BODY_SIM_1_SOURCES "src/n_body_sim_1.h")

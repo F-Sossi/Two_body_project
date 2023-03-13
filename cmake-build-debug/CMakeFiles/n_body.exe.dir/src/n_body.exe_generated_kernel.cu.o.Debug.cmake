@@ -72,7 +72,7 @@ set(generated_file_internal "/home/user/repos/Two_body_project/cmake-build-debug
 set(generated_cubin_file_internal "/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/./n_body.exe_generated_kernel.cu.o.cubin.txt") # path
 
 set(CUDA_NVCC_EXECUTABLE "/usr/local/cuda-12.0/bin/nvcc") # path
-set(CUDA_NVCC_FLAGS  -arch=sm_86 -g -G ;; ) # list
+set(CUDA_NVCC_FLAGS  --use_fast_math -arch=sm_86 -g -G ;; ) # list
 # Build specific configuration flags
 set(CUDA_NVCC_FLAGS_DEBUG  ; )
 set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )

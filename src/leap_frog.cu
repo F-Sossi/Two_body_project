@@ -8,7 +8,8 @@
 #include <vector>
 #include <cmath>
 
-constexpr int BLOCK_SIZE_LEAP = 1024;
+constexpr int BLOCK_SIZE_LEAP = 512; // optimal block size for leap frog integrator on 3050Ti
+
 
 
 __global__ void calculate_halfstep_velocity(int num_bodies, double dt, const double *d_forces, double *d_velocities)
@@ -38,20 +39,60 @@ __global__ void update_velocities(int num_bodies, double dt, const double *d_for
     }
 }
 
+//__global__ void calculate_forces(int num_bodies, const double *d_positions, const double *d_masses, double *d_forces)
+//{
+//    int i = blockIdx.x * blockDim.x + threadIdx.x;
+//    if (i < num_bodies * 3)
+//    {
+//        double fx = 0.0, fy = 0.0, fz = 0.0;
+//        double xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+//        double mi = d_masses[i / 3];
+//        for (int j = 0; j < num_bodies; j++)
+//        {
+//            if (j != i / 3)
+//            {
+//                double xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
+//                double mj = d_masses[j];
+//                double dx = xj - xi, dy = yj - yi, dz = zj - zi;
+//                double dist = sqrt(dx * dx + dy * dy + dz * dz);
+//                double f = G * mi * mj / (dist * dist * dist);
+//                fx += f * dx;
+//                fy += f * dy;
+//                fz += f * dz;
+//            }
+//        }
+//        d_forces[3 * i] = fx;
+//        d_forces[3 * i + 1] = fy;
+//        d_forces[3 * i + 2] = fz;
+//    }
+//}
+
 __global__ void calculate_forces(int num_bodies, const double *d_positions, const double *d_masses, double *d_forces)
 {
+    __shared__ double s_positions[BLOCK_SIZE_LEAP * 3];
+    __shared__ double s_masses[BLOCK_SIZE_LEAP];
+
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < num_bodies * 3)
-    {
-        double fx = 0.0, fy = 0.0, fz = 0.0;
-        double xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-        double mi = d_masses[i / 3];
-        for (int j = 0; j < num_bodies; j++)
-        {
-            if (j != i / 3)
-            {
-                double xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
-                double mj = d_masses[j];
+    double xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+    double mi = d_masses[i / 3];
+
+    double fx = 0.0, fy = 0.0, fz = 0.0;
+    for (int j = 0; j < num_bodies; j += blockDim.x * gridDim.x) {
+        // Load positions and masses into shared memory.
+        int k = j + threadIdx.x;
+        if (k < num_bodies) {
+            s_positions[3 * threadIdx.x] = d_positions[3 * k];
+            s_positions[3 * threadIdx.x + 1] = d_positions[3 * k + 1];
+            s_positions[3 * threadIdx.x + 2] = d_positions[3 * k + 2];
+            s_masses[threadIdx.x] = d_masses[k / 3];
+        }
+        __syncthreads();
+
+        // Compute forces using shared memory for positions and masses.
+        for (int l = 0; l < blockDim.x && j + l < num_bodies; l++) {
+            if (i != j + l) {
+                double xj = s_positions[3 * l], yj = s_positions[3 * l + 1], zj = s_positions[3 * l + 2];
+                double mj = s_masses[l];
                 double dx = xj - xi, dy = yj - yi, dz = zj - zi;
                 double dist = sqrt(dx * dx + dy * dy + dz * dz);
                 double f = G * mi * mj / (dist * dist * dist);
@@ -60,13 +101,16 @@ __global__ void calculate_forces(int num_bodies, const double *d_positions, cons
                 fz += f * dz;
             }
         }
-        d_forces[3 * i] = fx;
-        d_forces[3 * i + 1] = fy;
-        d_forces[3 * i + 2] = fz;
+        __syncthreads();
     }
+    d_forces[3 * i] = fx;
+    d_forces[3 * i + 1] = fy;
+    d_forces[3 * i + 2] = fz;
 }
 
+
 LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
+    : num_bodies(num_bodies)
 {
     // Initialize particle positions.
     std::default_random_engine rng;
@@ -119,7 +163,11 @@ void LeapFrogIntegrator::step(int num_steps, double dt)
 
     // Set up kernel launch configuration.
     int block_size = BLOCK_SIZE_LEAP;
-    int num_blocks = (positions.size() + block_size - 1) / block_size;
+    int num_blocks = (num_bodies + block_size - 1) / block_size;
+
+    // set up modified kernel launch configuration for calculate forces optimal for 3050ti
+    int block_size2 = 640;
+    int num_blocks2 = (positions.size() + block_size2 - 1) / block_size2;
 
 
     // Main simulation loop.
