@@ -1,4 +1,19 @@
-
+//---------------------------------------------------------------------------
+// leap_frog.cu - code file for leap_frog.h
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. LeapFrogIntegrator class
+//  1.1 LeapFrogIntegrator constructor
+//  1.2 LeapFrogIntegrator step function
+//  1.3 LeapFrogIntegrator get_positions function
+//  1.4 LeapFrogIntegrator write_positions_to_file function
+// 2. calculate_halfstep_velocity kernel
+// 3. update_positions kernel
+// 4. update_velocities kernel
+// 5. calculate_forces kernel
+//---------------------------------------------------------------------------
 #include "leap_frog.h"
 #include <cuda_runtime.h>
 #include <cmath>
@@ -10,8 +25,14 @@
 
 constexpr int BLOCK_SIZE_LEAP = 512; // optimal block size for leap frog integrator on 3050Ti
 
-
-
+//---------------------------------------------------------------------------
+// Kernel function to calculate the half step velocity
+// Input: num_bodies - number of bodies in the simulation
+//        dt - time step
+//        d_forces - array of forces on each body
+//        d_velocities - array of velocities of each body
+// Output: none
+//---------------------------------------------------------------------------
 __global__ void calculate_halfstep_velocity(int num_bodies, float dt, const float *d_forces, float *d_velocities)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -21,6 +42,15 @@ __global__ void calculate_halfstep_velocity(int num_bodies, float dt, const floa
     }
 }
 
+//---------------------------------------------------------------------------
+// Kernel function to update the positions of the bodies
+// Input:
+//        num_bodies - number of bodies in the simulation
+//        dt - time step
+//        d_velocities - array of velocities of each body
+//        d_positions - array of positions of each body
+// Output: none
+//---------------------------------------------------------------------------
 __global__ void update_positions(int num_bodies, float dt, const float *d_velocities, float *d_positions)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -29,7 +59,15 @@ __global__ void update_positions(int num_bodies, float dt, const float *d_veloci
         d_positions[i] += d_velocities[i] * dt;
     }
 }
-
+//---------------------------------------------------------------------------
+// Kernel function to update the velocities of the bodies
+// Input:
+//        num_bodies - number of bodies in the simulation
+//        dt - time step
+//        d_forces - array of forces on each body
+//        d_velocities - array of velocities of each body
+// Output: none
+//---------------------------------------------------------------------------
 __global__ void update_velocities(int num_bodies, float dt, const float *d_forces, float *d_velocities)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -39,34 +77,15 @@ __global__ void update_velocities(int num_bodies, float dt, const float *d_force
     }
 }
 
-//__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
-//{
-//    int i = blockIdx.x * blockDim.x + threadIdx.x;
-//    if (i < num_bodies * 3)
-//    {
-//        float fx = 0.0, fy = 0.0, fz = 0.0;
-//        float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-//        float mi = d_masses[i / 3];
-//        for (int j = 0; j < num_bodies; j++)
-//        {
-//            if (j != i / 3)
-//            {
-//                float xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
-//                float mj = d_masses[j];
-//                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
-//                float dist = sqrt(dx * dx + dy * dy + dz * dz);
-//                float f = G * mi * mj / (dist * dist * dist);
-//                fx += f * dx;
-//                fy += f * dy;
-//                fz += f * dz;
-//            }
-//        }
-//        d_forces[3 * i] = fx;
-//        d_forces[3 * i + 1] = fy;
-//        d_forces[3 * i + 2] = fz;
-//    }
-//}
-
+//---------------------------------------------------------------------------
+// Kernel function to calculate the forces on each body
+// Input:
+//        num_bodies - number of bodies in the simulation
+//        d_positions - array of positions of each body
+//        d_masses - array of masses of each body
+//        d_forces - array of forces on each body
+// Output: none
+//---------------------------------------------------------------------------
 __global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
 {
     __shared__ float s_positions[BLOCK_SIZE_LEAP * 3];
@@ -108,7 +127,12 @@ __global__ void calculate_forces(int num_bodies, const float *d_positions, const
     d_forces[3 * i + 2] = fz;
 }
 
-
+//---------------------------------------------------------------------------
+// Constructor to initialize the LeapFrogIntegrator class
+// Input:
+//        num_bodies - number of bodies in the simulation
+// Output:  none
+//---------------------------------------------------------------------------
 LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
     : num_bodies(num_bodies)
 {
@@ -146,6 +170,13 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
     std::fill(forces.begin(), forces.end(), 0.0);
 }
 
+//---------------------------------------------------------------------------
+// Method to perform a single step of the LeapFrog integrator
+// Input:
+//        num_steps - number of steps to perform
+//        dt - time step
+// Output: none
+//---------------------------------------------------------------------------
 void LeapFrogIntegrator::step(int num_steps, float dt)
 {
     // Allocate device memory.
@@ -204,6 +235,13 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
     cudaFree(d_masses);
 }
 
+//---------------------------------------------------------------------------
+// Method to write particle positions to file
+// Input:
+//        filename - name of file to write to
+//        step - current step of the simulation
+// Output: positionsX.txt file where X is the step number
+//---------------------------------------------------------------------------
 void LeapFrogIntegrator::write_positions_to_file(const std::string& filename, int step) {
     // Open file for writing particle positions.
     std::ofstream output_file(filename);
@@ -219,8 +257,41 @@ void LeapFrogIntegrator::write_positions_to_file(const std::string& filename, in
     // Close output file.
     output_file.close();
 }
-
+//---------------------------------------------------------------------------
+// Method to get particle positions
+// Input: none
+// Output: vector of particle positions
+//---------------------------------------------------------------------------
 std::vector<float> LeapFrogIntegrator::get_positions() const
 {
     return positions;
 }
+
+//old version without shared memory
+//__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
+//{
+//    int i = blockIdx.x * blockDim.x + threadIdx.x;
+//    if (i < num_bodies * 3)
+//    {
+//        float fx = 0.0, fy = 0.0, fz = 0.0;
+//        float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+//        float mi = d_masses[i / 3];
+//        for (int j = 0; j < num_bodies; j++)
+//        {
+//            if (j != i / 3)
+//            {
+//                float xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
+//                float mj = d_masses[j];
+//                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
+//                float dist = sqrt(dx * dx + dy * dy + dz * dz);
+//                float f = G * mi * mj / (dist * dist * dist);
+//                fx += f * dx;
+//                fy += f * dy;
+//                fz += f * dz;
+//            }
+//        }
+//        d_forces[3 * i] = fx;
+//        d_forces[3 * i + 1] = fy;
+//        d_forces[3 * i + 2] = fz;
+//    }
+//}

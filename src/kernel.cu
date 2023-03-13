@@ -5,9 +5,9 @@
 // 
 // This program simulates the motion of two bodies in space. The bodies are
 // represented by spheres and the motion is simulated by using the Euler
-// method.
+// method. Also implements the leapfrog method which is more accurate.
 //
-// Complile with cmake: 
+// Compile with cmake:
 //
 // mkdir build
 // cd build

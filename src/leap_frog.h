@@ -1,5 +1,13 @@
+//---------------------------------------------------------------------------
+// leap_frog.h - Header file for leap_frog.cu
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. LeapFrogIntegrator class
+//
+//---------------------------------------------------------------------------
 #pragma once
-
 #include <cuda_runtime.h>
 #include "cuda_runtime_api.h"
 #include <cmath>
