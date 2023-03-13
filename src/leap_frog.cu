@@ -12,7 +12,7 @@ constexpr int BLOCK_SIZE_LEAP = 512; // optimal block size for leap frog integra
 
 
 
-__global__ void calculate_halfstep_velocity(int num_bodies, double dt, const double *d_forces, double *d_velocities)
+__global__ void calculate_halfstep_velocity(int num_bodies, float dt, const float *d_forces, float *d_velocities)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < num_bodies * 3)
@@ -21,7 +21,7 @@ __global__ void calculate_halfstep_velocity(int num_bodies, double dt, const dou
     }
 }
 
-__global__ void update_positions(int num_bodies, double dt, const double *d_velocities, double *d_positions)
+__global__ void update_positions(int num_bodies, float dt, const float *d_velocities, float *d_positions)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < num_bodies * 3)
@@ -30,7 +30,7 @@ __global__ void update_positions(int num_bodies, double dt, const double *d_velo
     }
 }
 
-__global__ void update_velocities(int num_bodies, double dt, const double *d_forces, double *d_velocities)
+__global__ void update_velocities(int num_bodies, float dt, const float *d_forces, float *d_velocities)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < num_bodies * 3)
@@ -39,23 +39,23 @@ __global__ void update_velocities(int num_bodies, double dt, const double *d_for
     }
 }
 
-//__global__ void calculate_forces(int num_bodies, const double *d_positions, const double *d_masses, double *d_forces)
+//__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
 //{
 //    int i = blockIdx.x * blockDim.x + threadIdx.x;
 //    if (i < num_bodies * 3)
 //    {
-//        double fx = 0.0, fy = 0.0, fz = 0.0;
-//        double xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-//        double mi = d_masses[i / 3];
+//        float fx = 0.0, fy = 0.0, fz = 0.0;
+//        float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+//        float mi = d_masses[i / 3];
 //        for (int j = 0; j < num_bodies; j++)
 //        {
 //            if (j != i / 3)
 //            {
-//                double xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
-//                double mj = d_masses[j];
-//                double dx = xj - xi, dy = yj - yi, dz = zj - zi;
-//                double dist = sqrt(dx * dx + dy * dy + dz * dz);
-//                double f = G * mi * mj / (dist * dist * dist);
+//                float xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
+//                float mj = d_masses[j];
+//                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
+//                float dist = sqrt(dx * dx + dy * dy + dz * dz);
+//                float f = G * mi * mj / (dist * dist * dist);
 //                fx += f * dx;
 //                fy += f * dy;
 //                fz += f * dz;
@@ -67,16 +67,16 @@ __global__ void update_velocities(int num_bodies, double dt, const double *d_for
 //    }
 //}
 
-__global__ void calculate_forces(int num_bodies, const double *d_positions, const double *d_masses, double *d_forces)
+__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
 {
-    __shared__ double s_positions[BLOCK_SIZE_LEAP * 3];
-    __shared__ double s_masses[BLOCK_SIZE_LEAP];
+    __shared__ float s_positions[BLOCK_SIZE_LEAP * 3];
+    __shared__ float s_masses[BLOCK_SIZE_LEAP];
 
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    double xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-    double mi = d_masses[i / 3];
+    float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+    float mi = d_masses[i / 3];
 
-    double fx = 0.0, fy = 0.0, fz = 0.0;
+    float fx = 0.0, fy = 0.0, fz = 0.0;
     for (int j = 0; j < num_bodies; j += blockDim.x * gridDim.x) {
         // Load positions and masses into shared memory.
         int k = j + threadIdx.x;
@@ -91,11 +91,11 @@ __global__ void calculate_forces(int num_bodies, const double *d_positions, cons
         // Compute forces using shared memory for positions and masses.
         for (int l = 0; l < blockDim.x && j + l < num_bodies; l++) {
             if (i != j + l) {
-                double xj = s_positions[3 * l], yj = s_positions[3 * l + 1], zj = s_positions[3 * l + 2];
-                double mj = s_masses[l];
-                double dx = xj - xi, dy = yj - yi, dz = zj - zi;
-                double dist = sqrt(dx * dx + dy * dy + dz * dz);
-                double f = G * mi * mj / (dist * dist * dist);
+                float xj = s_positions[3 * l], yj = s_positions[3 * l + 1], zj = s_positions[3 * l + 2];
+                float mj = s_masses[l];
+                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
+                float dist = sqrt(dx * dx + dy * dy + dz * dz);
+                float f = G * mi * mj / (dist * dist * dist);
                 fx += f * dx;
                 fy += f * dy;
                 fz += f * dz;
@@ -114,7 +114,7 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
 {
     // Initialize particle positions.
     std::default_random_engine rng;
-    std::uniform_real_distribution<double> distribution(1000.0, 10000.0);
+    std::uniform_real_distribution<float> distribution(1000.0, 10000.0);
     positions.resize(num_bodies * 3);
     for (int i = 0; i < num_bodies; i++)
     {
@@ -124,7 +124,7 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
     }
 
     // Initialize particle velocities.
-    std::normal_distribution<double> velocity_distribution(0.0, 5000.0);
+    std::normal_distribution<float> velocity_distribution(0.0, 5000.0);
     velocities.resize(num_bodies * 3);
     for (int i = 0; i < num_bodies; i++)
     {
@@ -134,7 +134,7 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
     }
 
     // Initialize particle masses.
-    std::uniform_real_distribution<double> mass_distribution(1000.0, 10000.0);
+    std::uniform_real_distribution<float> mass_distribution(1000.0, 10000.0);
     masses.resize(num_bodies);
     for (int i = 0; i < num_bodies; i++)
     {
@@ -146,20 +146,20 @@ LeapFrogIntegrator::LeapFrogIntegrator(int num_bodies)
     std::fill(forces.begin(), forces.end(), 0.0);
 }
 
-void LeapFrogIntegrator::step(int num_steps, double dt)
+void LeapFrogIntegrator::step(int num_steps, float dt)
 {
     // Allocate device memory.
-    double *d_positions, *d_velocities, *d_forces, *d_masses;
-    cudaMalloc(&d_positions, positions.size() * sizeof(double));
-    cudaMalloc(&d_velocities, velocities.size() * sizeof(double));
-    cudaMalloc(&d_forces, forces.size() * sizeof(double));
-    cudaMalloc(&d_masses, masses.size() * sizeof(double));
+    float *d_positions, *d_velocities, *d_forces, *d_masses;
+    cudaMalloc(&d_positions, positions.size() * sizeof(float));
+    cudaMalloc(&d_velocities, velocities.size() * sizeof(float));
+    cudaMalloc(&d_forces, forces.size() * sizeof(float));
+    cudaMalloc(&d_masses, masses.size() * sizeof(float));
 
     // Copy initial data to device.
-    cudaMemcpy(d_positions, positions.data(), positions.size() * sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_velocities, velocities.data(), velocities.size() * sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_forces, forces.data(), forces.size() * sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_masses, masses.data(), masses.size() * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_positions, positions.data(), positions.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_velocities, velocities.data(), velocities.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_forces, forces.data(), forces.size() * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_masses, masses.data(), masses.size() * sizeof(float), cudaMemcpyHostToDevice);
 
     // Set up kernel launch configuration.
     int block_size = BLOCK_SIZE_LEAP;
@@ -193,9 +193,9 @@ void LeapFrogIntegrator::step(int num_steps, double dt)
     }
 
     // Copy final data back to host.
-    cudaMemcpy(positions.data(), d_positions, positions.size() * sizeof(double), cudaMemcpyDeviceToHost);
-    cudaMemcpy(velocities.data(), d_velocities, velocities.size() * sizeof(double), cudaMemcpyDeviceToHost);
-    cudaMemcpy(forces.data(), d_forces, forces.size() * sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(positions.data(), d_positions, positions.size() * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(velocities.data(), d_velocities, velocities.size() * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(forces.data(), d_forces, forces.size() * sizeof(float), cudaMemcpyDeviceToHost);
 
     // Free device memory.
     cudaFree(d_positions);
@@ -209,7 +209,7 @@ void LeapFrogIntegrator::write_positions_to_file(const std::string& filename, in
     std::ofstream output_file(filename);
     
     // Copy particle positions to host.
-    cudaMemcpy(positions.data(), d_positions, positions.size() * sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(positions.data(), d_positions, positions.size() * sizeof(float), cudaMemcpyDeviceToHost);
     
     // Write particle positions to file.
     for (size_t i = 0; i < positions.size(); i += 3) {
@@ -220,7 +220,7 @@ void LeapFrogIntegrator::write_positions_to_file(const std::string& filename, in
     output_file.close();
 }
 
-std::vector<double> LeapFrogIntegrator::get_positions() const
+std::vector<float> LeapFrogIntegrator::get_positions() const
 {
     return positions;
 }

@@ -39,7 +39,7 @@ def update_plot(num):
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Number of iterations
-numIterations = 1000
+numIterations = 2000
 
 # Load position data from files
 positions = []

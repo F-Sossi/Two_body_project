@@ -9,26 +9,26 @@
 #include <vector>
 #include <cmath>
 
-const double G = 6.6743e-11;
+const float G = 6.6743e-11;
 
-__global__ void calculate_halfstep_velocity(int num_bodies, double dt, const double *d_forces, double *d_velocities);
+__global__ void calculate_halfstep_velocity(int num_bodies, float dt, const float *d_forces, float *d_velocities);
 
-__global__ void update_positions(int num_bodies, double dt, const double *d_velocities, double *d_positions);
+__global__ void update_positions(int num_bodies, float dt, const float *d_velocities, float *d_positions);
 
-__global__ void update_velocities(int num_bodies, double dt, const double *d_forces, double *d_velocities);
+__global__ void update_velocities(int num_bodies, float dt, const float *d_forces, float *d_velocities);
 
-__global__ void calculate_forces(int num_bodies, const double *d_positions, const double *d_masses, double *d_forces);
+__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces);
 
 class LeapFrogIntegrator
 {
 public:
     LeapFrogIntegrator(int num_bodies);
-    void step(int num_steps, double dt);
-    std::vector<double> get_positions() const;
+    void step(int num_steps, float dt);
+    std::vector<float> get_positions() const;
 
 private:
-    std::vector<double> positions, velocities, forces, masses;
-    double *d_positions, *d_velocities, *d_forces, *d_masses;
+    std::vector<float> positions, velocities, forces, masses;
+    float *d_positions, *d_velocities, *d_forces, *d_masses;
     int num_bodies;
     int write_freq = 1;
 
