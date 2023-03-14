@@ -256,6 +256,7 @@ void LeapFrogIntegrator::write_positions_to_file(const std::string& filename, in
     // Close output file.
     output_file.close();
 }
+
 //---------------------------------------------------------------------------
 // Method to get particle positions
 // Input: none
