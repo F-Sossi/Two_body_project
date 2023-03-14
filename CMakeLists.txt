@@ -12,8 +12,9 @@ file(GLOB KERNEL_SOURCES "src/kernel.cu")
 file(GLOB N_BODY_SIM_1_SOURCES "src/n_body_sim_1.h")
 file(GLOB N_BODY_SIM_2_SOURCES "src/n_body_sim_2.h")
 file(GLOB LEAP_FROG_SOURCES "src/leap_frog.h" "src/leap_frog.cu")
+file(GLOB VERLET_SOURCES "src/verlet.h" "src/verlet.cu")
 
-cuda_add_executable(n_body.exe ${KERNEL_SOURCES} ${N_BODY_SIM_1_SOURCES} ${N_BODY_SIM_2_SOURCES} ${LEAP_FROG_SOURCES})
+cuda_add_executable(n_body.exe ${KERNEL_SOURCES} ${N_BODY_SIM_1_SOURCES} ${N_BODY_SIM_2_SOURCES} ${LEAP_FROG_SOURCES} ${VERLET_SOURCES})
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 include_directories(${CUDA_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
