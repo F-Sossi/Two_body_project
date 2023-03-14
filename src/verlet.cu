@@ -128,7 +128,7 @@ void VerletIntegrator::step(int num_steps, float dt)
     cudaMemcpy(d_masses, masses.data(), masses.size() * sizeof(float), cudaMemcpyHostToDevice);
 
     // Set up kernel launch configuration.
-    int block_size = 256;
+    int block_size = BLOCK_SIZE_VER;
     int num_blocks = (num_bodies + block_size - 1) / block_size;
 
     // Main simulation loop.

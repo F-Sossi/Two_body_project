@@ -68,3 +68,10 @@
 0	1944	1678761196574867538	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
 0	1944	1678761196574867538	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
 1945	2012	1678761196642866971	n_body.exe	7c8186955a3b9cb3
+2	2329	1678763033961745612	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+2	2329	1678763033961745612	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+1	2340	1678763033969745488	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+1	2340	1678763033969745488	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+2	2395	1678763034025744628	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+2	2395	1678763034025744628	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+2395	2490	1678763034121743153	n_body.exe	7c8186955a3b9cb3
