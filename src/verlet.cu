@@ -1,115 +1,193 @@
+//---------------------------------------------------------------------------
+// verlet.cu - code file for verlet.h
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. VerletIntegrator class
+// 2. VerletIntegrator constructor
+// 3. VerletIntegrator step function
+// 4. VerletIntegrator get_positions function
+// 5. VerletIntegrator write_positions_to_file function
+// 6. update_positions_ver Kernel
+// 7. calculate_forces_ver Kernel
+// 8. calculate_velocities_ver Kernel
+//---------------------------------------------------------------------------
 #include "verlet.h"
 #include <cuda_runtime.h>
 #include <vector_types.h>
 
-constexpr int BLOCK_SIZE_VER = 1024;
+constexpr int BLOCK_SIZE_VER = 512;
 
-
-__global__ void update_positions_ver(int num_bodies, float dt, const float *d_velocities, const float *d_forces, float *d_positions, const float *d_masses)
+//---------------------------------------------------------------------------
+// Kernel function to update the positions of the bodies using the verlet method
+// Input:
+//      num_bodies - number of bodies in the simulation
+//      dt - time step
+//      d_velocities - array of velocities of the bodies
+//      d_forces - array of forces on the bodies
+//      d_positions - array of positions of the bodies
+//      d_masses - array of masses of the bodies
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void update_positions_ver(int num_bodies, float dt, const float *d_velocities, const float *d_forces,
+                                     float *d_positions, const float *d_masses)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
+    // For each body being updated by this thread
     for (int i = tid; i < num_bodies; i += stride) {
+
+        // get the position and of the body
         float px = d_positions[i * 3];
         float py = d_positions[i * 3 + 1];
         float pz = d_positions[i * 3 + 2];
 
+        // get the velocity of the body
         float vx = d_velocities[i * 3];
         float vy = d_velocities[i * 3 + 1];
         float vz = d_velocities[i * 3 + 2];
 
+        // get the force of the body
         float fx = d_forces[i * 3];
         float fy = d_forces[i * 3 + 1];
         float fz = d_forces[i * 3 + 2];
 
+        // get the mass of the body
         float m = d_masses[i];
 
+        // Update the position of the body using the verlet method
         px += vx * dt + 0.5f * fx / m * dt * dt;
         py += vy * dt + 0.5f * fy / m * dt * dt;
         pz += vz * dt + 0.5f * fz / m * dt * dt;
 
+        // Update the position of the body
         d_positions[i * 3] = px;
         d_positions[i * 3 + 1] = py;
         d_positions[i * 3 + 2] = pz;
     }
 }
 
+//---------------------------------------------------------------------------
+// Kernel function to calculate the forces on the bodies using the verlet method
+// Input:
+//      num_bodies - number of bodies in the simulation
+//      d_positions - array of positions of the bodies
+//      d_masses - array of masses of the bodies
+//      d_forces - array of forces on the bodies
+// Output: none
+//---------------------------------------------------------------------------
 __global__ void calculate_forces_ver(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
+    // For each body being updated by this thread
     for (int i = tid; i < num_bodies; i += stride) {
         float fx = 0.0f;
         float fy = 0.0f;
         float fz = 0.0f;
 
+        // get the position and mass of the body
         float xi = d_positions[i * 3];
         float yi = d_positions[i * 3 + 1];
         float zi = d_positions[i * 3 + 2];
         float mi = d_masses[i];
 
+        // Loop over all other bodies
         for (int j = 0; j < num_bodies; j++) {
+            // Skip self-interaction
             if (i == j) {
                 continue;
             }
 
+            // Get the position and mass of the other body
             float xj = d_positions[j * 3];
             float yj = d_positions[j * 3 + 1];
             float zj = d_positions[j * 3 + 2];
             float mj = d_masses[j];
 
+            // Calculate the distance between the bodies
             float dx = xj - xi;
             float dy = yj - yi;
             float dz = zj - zi;
 
+            // Calculate the force between the bodies
             float dist = sqrtf(dx*dx + dy*dy + dz*dz);
             float dist_cubed = dist * dist * dist;
 
+            // Calculate the force accumulated on this body
             fx += VER_G * mj * dx / dist_cubed;
             fy += VER_G * mj * dy / dist_cubed;
             fz += VER_G * mj * dz / dist_cubed;
         }
 
+        // Store the force for this body
         d_forces[i * 3] = fx;
         d_forces[i * 3 + 1] = fy;
         d_forces[i * 3 + 2] = fz;
     }
 }
 
-
-__global__ void calculate_velocities_ver(int num_bodies, float dt, const float *d_forces, const float *d_old_forces, const float *d_masses, float *d_velocities)
+//---------------------------------------------------------------------------
+// Kernel function to calculate the velocities of the bodies using the verlet method
+// Input:
+//      num_bodies - number of bodies in the simulation
+//      dt - time step
+//      d_forces - array of forces on the bodies
+//      d_old_forces - array of forces on the bodies from the previous time step
+//      d_masses - array of masses of the bodies
+//      d_velocities - array of velocities of the bodies
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void calculate_velocities_ver(int num_bodies, float dt, const float *d_forces, const float *d_old_forces,
+                                         const float *d_masses, float *d_velocities)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
+    // Loop over the bodies for this thread
     for (int i = tid; i < num_bodies; i += stride) {
+
+        // Get the forces and velocities for this body
         float vx = d_velocities[i * 3];
         float vy = d_velocities[i * 3 + 1];
         float vz = d_velocities[i * 3 + 2];
 
+        // Get the forces for this body
         float fx = d_forces[i * 3];
         float fy = d_forces[i * 3 + 1];
         float fz = d_forces[i * 3 + 2];
 
+        // Get the old forces for this body
         float fx_old = d_old_forces[i * 3];
         float fy_old = d_old_forces[i * 3 + 1];
         float fz_old = d_old_forces[i * 3 + 2];
 
+        // Get the mass for this body
         float m = d_masses[i];
 
+        // Update the velocities using the Verlet method
         vx += 0.5f * (fx_old + fx) / m * dt;
         vy += 0.5f * (fy_old + fy) / m * dt;
         vz += 0.5f * (fz_old + fz) / m * dt;
 
+        // Store the new velocities
         d_velocities[i * 3] = vx;
         d_velocities[i * 3 + 1] = vy;
         d_velocities[i * 3 + 2] = vz;
     }
 }
 
-
+//---------------------------------------------------------------------------
+// VerletIntegrator::step method - performs a passed number fo steps of the
+//                   simulation
+// Input:
+//      num_steps - number of steps to perform
+//      dt - time step
+// Output: none
+//---------------------------------------------------------------------------
 void VerletIntegrator::step(int num_steps, float dt)
 {
     // Allocate device memory.
@@ -136,31 +214,16 @@ void VerletIntegrator::step(int num_steps, float dt)
     {
         // Calculate forces at old positions.
         calculate_forces_ver<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
-        cudaError err = cudaGetLastError();
-        if (err != cudaSuccess) {
-            std::cout << "CUDA error ver : " << cudaGetErrorString(err) << std::endl;
-        }
 
         // Update positions using Verlet method.
         update_positions_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_forces, d_positions, d_masses);
-        err = cudaGetLastError();
-        if (err != cudaSuccess) {
-            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
-        }
 
         // Calculate forces at new positions.
         calculate_forces_ver<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
-        err = cudaGetLastError();
-        if (err != cudaSuccess) {
-            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
-        }
 
         // Update velocities using Verlet method.
         calculate_velocities_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_old_forces, d_masses, d_velocities);
-        err = cudaGetLastError();
-        if (err != cudaSuccess) {
-            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
-        }
+
 
         // Swap forces.
         float *temp = d_forces;
@@ -187,7 +250,13 @@ void VerletIntegrator::step(int num_steps, float dt)
     cudaFree(d_masses);
 }
 
-
+//---------------------------------------------------------------------------
+// VerletIntegrator::Constructor method - initializes the bodies in the
+//                   simulation
+// Input:
+//      num_bodies - number of bodies to simulate
+// Output: none
+//---------------------------------------------------------------------------
 VerletIntegrator::VerletIntegrator(int num_bodies)
         : num_bodies(num_bodies)
 {
@@ -223,7 +292,14 @@ VerletIntegrator::VerletIntegrator(int num_bodies)
     std::fill(forces.begin(), forces.end(), 0.0);
 
 }
-
+//---------------------------------------------------------------------------
+// VerletIntegrator::write_positions_to_file method - writes the positions
+//                   of the bodies to a file for visualization
+// Input:
+//      filename - name of the file to write to
+//      step - current step of the simulation
+// Output: none
+//---------------------------------------------------------------------------
 void VerletIntegrator::write_positions_to_file(const std::string& filename, int step)
 {
     // Open file for writing particle positions.
@@ -240,6 +316,13 @@ void VerletIntegrator::write_positions_to_file(const std::string& filename, int 
     // Close output file.
     output_file.close();
 }
+
+//---------------------------------------------------------------------------
+// VerletIntegrator::get_positions method - returns the positions of the
+//                   bodies
+// Input: none
+// Output: positions of the bodies in a float vector
+//---------------------------------------------------------------------------
 std::vector<float> VerletIntegrator::get_positions() const
 {
     return positions;

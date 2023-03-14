@@ -206,31 +206,15 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
     {
         // Calculate half-step velocity.
         calculate_halfstep_velocity<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);
-        cudaError error = cudaGetLastError();
-        if(error != cudaSuccess) {
-            printf("CUDA error half_vel: %s\n", cudaGetErrorString(error));
-        }
 
         // Update positions.
         update_positions<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_positions);
-        error = cudaGetLastError();
-        if(error != cudaSuccess) {
-            printf("CUDA error upd_pos: %s\n", cudaGetErrorString(error));
-        }
 
         // Calculate forces at new positions.
         calculate_forces<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
-        error = cudaGetLastError();
-        if(error != cudaSuccess) {
-            printf("CUDA error calc_force: %s\n", cudaGetErrorString(error));
-        }
 
         // Update velocities with full-step forces.
         update_velocities<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);
-        error = cudaGetLastError();
-        if(error != cudaSuccess) {
-            printf("CUDA error update_vel: %s\n", cudaGetErrorString(error));
-        }
 
         // Write particle positions to file.
         if ((step+1) % write_freq == 0) {

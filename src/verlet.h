@@ -1,3 +1,12 @@
+//---------------------------------------------------------------------------
+// verlet.h - Header file for verlet.cu
+// Author: Frank Sossi
+// Author: Amalaye Oyake
+//
+// File contains:
+// 1. VerletIntegrator class
+//
+//---------------------------------------------------------------------------
 #pragma once
 #include <cuda_runtime.h>
 #include "cuda_runtime_api.h"
@@ -8,9 +17,15 @@
 #include <vector>
 #include <cmath>
 
+// gravitational constant
 const float VER_G = 6.6743e-11;
 
-__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces);
+__global__ void update_positions_ver(int num_bodies, float dt, const float *d_velocities, const float *d_forces,
+                                     float *d_positions, const float *d_masses);
+__global__ void calculate_forces_ver(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces);
+
+__global__ void calculate_velocities_ver(int num_bodies, float dt, const float *d_forces, const float *d_old_forces,
+                                         const float *d_masses, float *d_velocities);
 
 class VerletIntegrator
 {
