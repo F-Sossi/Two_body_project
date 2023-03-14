@@ -110,47 +110,6 @@ __global__ void calculate_velocities_ver(int num_bodies, float dt, const float *
 }
 
 
-//__global__ void calculate_forces_ver(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
-//{
-//    __shared__ float s_positions[BLOCK_SIZE_VER * 3];
-//    __shared__ float s_masses[BLOCK_SIZE_VER];
-//
-//    int i = blockIdx.x * blockDim.x + threadIdx.x;
-//    float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-//    float mi = d_masses[i / 3];
-//
-//    float fx = 0.0, fy = 0.0, fz = 0.0;
-//    for (int j = 0; j < num_bodies; j += blockDim.x * gridDim.x) {
-//        // Load positions and masses into shared memory.
-//        int k = j + threadIdx.x;
-//        if (k < num_bodies) {
-//            s_positions[3 * threadIdx.x] = d_positions[3 * k];
-//            s_positions[3 * threadIdx.x + 1] = d_positions[3 * k + 1];
-//            s_positions[3 * threadIdx.x + 2] = d_positions[3 * k + 2];
-//            s_masses[threadIdx.x] = d_masses[k / 3];
-//        }
-//        __syncthreads();
-//
-//        // Compute forces using shared memory for positions and masses.
-//        for (int l = 0; l < blockDim.x && j + l < num_bodies; l++) {
-//            if (i != j + l) {
-//                float xj = s_positions[3 * l], yj = s_positions[3 * l + 1], zj = s_positions[3 * l + 2];
-//                float mj = s_masses[l];
-//                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
-//                float dist = sqrt(dx * dx + dy * dy + dz * dz);
-//                float f = VER_G * mi * mj / (dist * dist * dist);
-//                fx += f * dx;
-//                fy += f * dy;
-//                fz += f * dz;
-//            }
-//        }
-//        __syncthreads();
-//    }
-//    d_forces[3 * i] = fx;
-//    d_forces[3 * i + 1] = fy;
-//    d_forces[3 * i + 2] = fz;
-//}
-
 void VerletIntegrator::step(int num_steps, float dt)
 {
     // Allocate device memory.
@@ -262,8 +221,7 @@ VerletIntegrator::VerletIntegrator(int num_bodies)
     // Initialize particle forces.
     forces.resize(num_bodies * 3);
     std::fill(forces.begin(), forces.end(), 0.0);
-    // print forces.size()
-    std::cout << "forces.size() = " << forces.size() << std::endl;
+
 }
 
 void VerletIntegrator::write_positions_to_file(const std::string& filename, int step)
