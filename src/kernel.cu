@@ -34,7 +34,7 @@
 
 int main()
 {
-    const int numIterations = 1000;
+    const int numIterations = 10;
 
     //determines the time step used for each iteration in the simulation. 
     //Lower value = more accurate simulation higher value = faster simulation
@@ -42,13 +42,11 @@ int main()
 
     // Lowers the velocity of particles over time to simulate friction
     //const float damping = 0.999;
-    int numBodies = 5480;
+    int numBodies = 20040;
 
-    //LeapFrogIntegrator integrator(numBodies);
+    LeapFrogIntegrator integrator(numBodies);
 
-    //integrator.step(numIterations, deltaTime);
-
-    VerletIntegrator integrator(numBodies);
+    //VerletIntegrator integrator(numBodies);
 
     integrator.step(numIterations, deltaTime);
 

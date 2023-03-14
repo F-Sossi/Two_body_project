@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <vector_types.h>
 
-constexpr int BLOCK_SIZE_VER = 256;
+constexpr int BLOCK_SIZE_VER = 1024;
 
 
 __global__ void update_positions_ver(int num_bodies, float dt, const float *d_velocities, const float *d_forces, float *d_positions, const float *d_masses)
@@ -176,17 +176,32 @@ void VerletIntegrator::step(int num_steps, float dt)
     for (int step = 0; step < num_steps; step++)
     {
         // Calculate forces at old positions.
-        calculate_forces<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        calculate_forces_ver<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        cudaError err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            std::cout << "CUDA error ver : " << cudaGetErrorString(err) << std::endl;
+        }
 
         // Update positions using Verlet method.
         update_positions_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_forces, d_positions, d_masses);
+        err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
+        }
 
         // Calculate forces at new positions.
         calculate_forces_ver<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
+        }
 
         // Update velocities using Verlet method.
-        calculate_velocities_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_old_forces, d_masses,
-                                                             d_velocities);
+        calculate_velocities_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_old_forces, d_masses, d_velocities);
+        err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl;
+        }
 
         // Swap forces.
         float *temp = d_forces;
@@ -245,8 +260,10 @@ VerletIntegrator::VerletIntegrator(int num_bodies)
     }
 
     // Initialize particle forces.
-    forces.resize(num_bodies * 2);
+    forces.resize(num_bodies * 3);
     std::fill(forces.begin(), forces.end(), 0.0);
+    // print forces.size()
+    std::cout << "forces.size() = " << forces.size() << std::endl;
 }
 
 void VerletIntegrator::write_positions_to_file(const std::string& filename, int step)

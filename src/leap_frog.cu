@@ -23,7 +23,7 @@
 #include <vector>
 #include <cmath>
 
-constexpr int BLOCK_SIZE_LEAP = 512; // optimal block size for leap frog integrator on 3050Ti
+constexpr int BLOCK_SIZE_LEAP = 1024; // optimal block size for leap frog integrator on 3050Ti
 
 //---------------------------------------------------------------------------
 // Kernel function to calculate the half step velocity
@@ -197,8 +197,8 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
     int num_blocks = (num_bodies + block_size - 1) / block_size;
 
     // set up modified kernel launch configuration for calculate forces optimal for 3050ti
-    int block_size2 = 640;
-    int num_blocks2 = (positions.size() + block_size2 - 1) / block_size2;
+//    int block_size2 = 640;
+//    int num_blocks2 = (positions.size() + block_size2 - 1) / block_size2;
 
 
     // Main simulation loop.
@@ -206,15 +206,31 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
     {
         // Calculate half-step velocity.
         calculate_halfstep_velocity<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);
+        cudaError error = cudaGetLastError();
+        if(error != cudaSuccess) {
+            printf("CUDA error half_vel: %s\n", cudaGetErrorString(error));
+        }
 
         // Update positions.
         update_positions<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_positions);
+        error = cudaGetLastError();
+        if(error != cudaSuccess) {
+            printf("CUDA error upd_pos: %s\n", cudaGetErrorString(error));
+        }
 
         // Calculate forces at new positions.
         calculate_forces<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        error = cudaGetLastError();
+        if(error != cudaSuccess) {
+            printf("CUDA error calc_force: %s\n", cudaGetErrorString(error));
+        }
 
         // Update velocities with full-step forces.
         update_velocities<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);
+        error = cudaGetLastError();
+        if(error != cudaSuccess) {
+            printf("CUDA error update_vel: %s\n", cudaGetErrorString(error));
+        }
 
         // Write particle positions to file.
         if ((step+1) % write_freq == 0) {
