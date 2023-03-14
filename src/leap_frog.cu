@@ -10,7 +10,7 @@
 //  1.3 LeapFrogIntegrator get_positions function
 //  1.4 LeapFrogIntegrator write_positions_to_file function
 // 2. calculate_halfstep_velocity kernel
-// 3. update_positions kernel
+// 3. update_positions_ver kernel
 // 4. update_velocities kernel
 // 5. calculate_forces kernel
 //---------------------------------------------------------------------------
