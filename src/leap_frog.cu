@@ -21,7 +21,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <cmath>
 
 constexpr int BLOCK_SIZE_LEAP = 1024; // optimal block size for leap frog integrator on 3050Ti
 
@@ -267,31 +266,3 @@ std::vector<float> LeapFrogIntegrator::get_positions() const
     return positions;
 }
 
-//old version without shared memory
-//__global__ void calculate_forces(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
-//{
-//    int i = blockIdx.x * blockDim.x + threadIdx.x;
-//    if (i < num_bodies * 3)
-//    {
-//        float fx = 0.0, fy = 0.0, fz = 0.0;
-//        float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
-//        float mi = d_masses[i / 3];
-//        for (int j = 0; j < num_bodies; j++)
-//        {
-//            if (j != i / 3)
-//            {
-//                float xj = d_positions[3 * j], yj = d_positions[3 * j + 1], zj = d_positions[3 * j + 2];
-//                float mj = d_masses[j];
-//                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
-//                float dist = sqrt(dx * dx + dy * dy + dz * dz);
-//                float f = G * mi * mj / (dist * dist * dist);
-//                fx += f * dx;
-//                fy += f * dy;
-//                fz += f * dz;
-//            }
-//        }
-//        d_forces[3 * i] = fx;
-//        d_forces[3 * i + 1] = fy;
-//        d_forces[3 * i + 2] = fz;
-//    }
-//}
