@@ -29,6 +29,7 @@
 #include "n_body_sim_1.h"
 #include "n_body_sim_2.h"
 #include "leap_frog.h"
+#include "verlet.h"
 
 
 int main()
@@ -41,9 +42,13 @@ int main()
 
     // Lowers the velocity of particles over time to simulate friction
     //const float damping = 0.999;
-    int numBodies = 20480;
+    int numBodies = 5480;
 
-    LeapFrogIntegrator integrator(numBodies);
+    //LeapFrogIntegrator integrator(numBodies);
+
+    //integrator.step(numIterations, deltaTime);
+
+    VerletIntegrator integrator(numBodies);
 
     integrator.step(numIterations, deltaTime);
 

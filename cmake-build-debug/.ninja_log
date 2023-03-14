@@ -1,7 +1,22 @@
 # ninja log v5
 0	1859	1678679764217346086	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
 0	1859	1678679764217346086	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
-0	37	1678752727241188030	build.ninja	1cd98009f32120b4
-0	2335	1678679572711129779	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
-0	2335	1678679572711129779	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+1	50	1678750981229440739	build.ninja	1cd98009f32120b4
+1	2122	1678750945505751083	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+1	2122	1678750945505751083	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
 1859	1911	1678679764269345601	n_body.exe	f8368fff8d1b0890
+0	54	1678750981229440739	build.ninja	1cd98009f32120b4
+1	2042	1678751698923661624	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+1	2042	1678751698923661624	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+0	2047	1678751698931661549	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+0	2047	1678751698931661549	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+2	1836	1678751874342037145	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+2	1836	1678751874342037145	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_leap_frog.cu.o	f5eb6333de6924df
+1	1791	1678751924597568400	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+1	1791	1678751924597568400	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+1792	1851	1678751924657567839	n_body.exe	7c8186955a3b9cb3
+1	1949	1678752152347162276	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+1	1949	1678752152347162276	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_verlet.cu.o	5fed1dc1d3df4d95
+1	1998	1678752152395161753	CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+1	1998	1678752152395161753	/home/user/repos/Two_body_project/cmake-build-debug/CMakeFiles/n_body.exe.dir/src/n_body.exe_generated_kernel.cu.o	442c7c9f3199a3c8
+1998	2066	1678752152463161013	n_body.exe	7c8186955a3b9cb3

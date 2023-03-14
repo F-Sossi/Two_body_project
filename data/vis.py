@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
 
-ZONE = 10000
+ZONE = 15000
 NZONE = 3000
 
 # Variables for camera position and zoom level
@@ -39,7 +39,7 @@ def update_plot(num):
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Number of iterations
-numIterations = 2000
+numIterations = 1000
 
 # Load position data from files
 positions = []
@@ -80,9 +80,9 @@ def on_key_press(event):
     elif event.key == 'up':
         cam_y += ZONE / 10
     elif event.key == '+':
-        zoom_level += 2
+        zoom_level += 0.5
     elif event.key == '-':
-        zoom_level -= 2
+        zoom_level -= 0.5
     elif event.key == 'a':
         cam_z -= ZONE / 10   # Move camera along z-axis
     elif event.key == 'z':
