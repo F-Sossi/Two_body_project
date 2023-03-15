@@ -18,9 +18,14 @@ def update_plot(num):
     ax.cla()
 
     # Adjust axis limits based on camera position and zoom level
-    ax.set_xlim3d(cam_x - ZONE / zoom_level, cam_x + ZONE / zoom_level)
-    ax.set_ylim3d(cam_y - ZONE / zoom_level, cam_y + ZONE / zoom_level)
-    ax.set_zlim3d(cam_z - ZONE / zoom_level, cam_z + ZONE / zoom_level)
+    if zoom_level != 0:
+        ax.set_xlim3d(cam_x - ZONE / zoom_level, cam_x + ZONE / zoom_level)
+        ax.set_ylim3d(cam_y - ZONE / zoom_level, cam_y + ZONE / zoom_level)
+        ax.set_zlim3d(cam_z - ZONE / zoom_level, cam_z + ZONE / zoom_level)
+    else:
+        ax.set_xlim3d(cam_x - ZONE, cam_x + ZONE)
+        ax.set_ylim3d(cam_y - ZONE, cam_y + ZONE)
+        ax.set_zlim3d(cam_z - ZONE, cam_z + ZONE)
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -39,7 +44,7 @@ def update_plot(num):
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Number of iterations
-numIterations = 1000
+numIterations = 200
 
 # Load position data from files
 positions = []
@@ -87,9 +92,15 @@ def on_key_press(event):
         cam_z -= ZONE / 10   # Move camera along z-axis
     elif event.key == 'z':
         cam_z += ZONE / 10   # Move camera along z-axis
-    ax.set_xlim3d(cam_x - ZONE / zoom_level, cam_x + ZONE / zoom_level)
-    ax.set_ylim3d(cam_y - ZONE / zoom_level, cam_y + ZONE / zoom_level)
-    ax.set_zlim3d(cam_z - ZONE / zoom_level, cam_z + ZONE / zoom_level)
+    if zoom_level != 0:
+        # Adjust axis limits based on camera position and zoom level
+        ax.set_xlim3d(cam_x - ZONE / zoom_level, cam_x + ZONE / zoom_level)
+        ax.set_ylim3d(cam_y - ZONE / zoom_level, cam_y + ZONE / zoom_level)
+        ax.set_zlim3d(cam_z - ZONE / zoom_level, cam_z + ZONE / zoom_level)
+    else:
+        ax.set_xlim3d(cam_x - ZONE, cam_x + ZONE)
+        ax.set_ylim3d(cam_y - ZONE, cam_y + ZONE)
+        ax.set_zlim3d(cam_z - ZONE, cam_z + ZONE)
     fig.canvas.draw()
 
 # Connect keyboard controls to figure
