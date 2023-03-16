@@ -42,7 +42,7 @@ int main()
 {
 
 #ifdef TEST
-     std::vector<int>testSizes = { 8192, 100435};
+     std::vector<int>testSizes = { 8192, 1000435};
      std::vector<long long>testTimesSim1;
      std::vector<long long>testTimesSim2;
      std::vector<long long>testTimesSim3;
@@ -55,7 +55,7 @@ int main()
         const float damping = 0.999;
 
         //print Running simulation1 for each test size:
-        std::cout << "Running simulation1 for test size: " << testSizes[i] << std::endl;
+        std::cout << "Running Euler Parallel for test size: " << testSizes[i] << std::endl;
 
         //calculate the running time for each simulation
         auto startsim1 = std::chrono::high_resolution_clock::now();
@@ -67,7 +67,7 @@ int main()
         testTimesSim1.push_back(durationSim1.count());
 
 //        // print Running simulation2 for each test size:
-//        std::cout << "Running simulation2 for test size: " << testSizes[i] << std::endl;
+//        std::cout << "Running Euler Naive for test size: " << testSizes[i] << std::endl;
 //
 //        auto startsim2 = std::chrono::high_resolution_clock::now();
 //        runNbodySimulation(testSizes[i], numIterations, deltaTime, damping);
@@ -77,7 +77,7 @@ int main()
 //        testTimesSim2.push_back(durationSim2.count());
 
         // print Running simulation3 for each test size:
-        std::cout << "Running simulation3 for test size: " << testSizes[i] << std::endl;
+        std::cout << "Running Leap Frog for test size: " << testSizes[i] << std::endl;
 
         auto startsim3 = std::chrono::high_resolution_clock::now();
         LeapFrogIntegrator integrator1(testSizes[i]);
@@ -87,23 +87,23 @@ int main()
         auto durationSim3 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim3 - startsim3);
         testTimesSim3.push_back(durationSim3.count());
 
-        // print Running simulation4 for each test size:
-        std::cout << "Running simulation4 for test size: " << testSizes[i] << std::endl;
-
-        auto startsim4 = std::chrono::high_resolution_clock::now();
-        VerletIntegrator integrator2(testSizes[i]);
-        integrator2.step(numIterations, deltaTime);
-        auto endsim4 = std::chrono::high_resolution_clock::now();
-
-        auto durationSim4 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim4 - startsim4);
-        testTimesSim4.push_back(durationSim4.count());
+//        // print Running simulation4 for each test size:
+//        std::cout << "Running Verlet for test size: " << testSizes[i] << std::endl;
+//
+//        auto startsim4 = std::chrono::high_resolution_clock::now();
+//        VerletIntegrator integrator2(testSizes[i]);
+//        integrator2.step(numIterations, deltaTime);
+//        auto endsim4 = std::chrono::high_resolution_clock::now();
+//
+//        auto durationSim4 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim4 - startsim4);
+//        testTimesSim4.push_back(durationSim4.count());
 
         // print test size and time taken for each simulation
         std::cout << "Test Size: " << testSizes[i] << std::endl;
-        std::cout << "Time taken for simulation 1: " << durationSim1.count() << " nanoseconds" << std::endl;
+        std::cout << "Time taken for simulation EUL 1: " << durationSim1.count() << " nanoseconds" << std::endl;
         //std::cout << "Time taken for simulation 2: " << durationSim2.count() << " nanoseconds" << std::endl;
-        std::cout << "Time taken for simulation 3: " << durationSim3.count() << " nanoseconds" << std::endl;
-        std::cout << "Time taken for simulation 4: " << durationSim4.count() << " nanoseconds" << std::endl;
+        std::cout << "Time taken for simulation LEA 3: " << durationSim3.count() << " nanoseconds" << std::endl;
+        //std::cout << "Time taken for simulation VER 4: " << durationSim4.count() << " nanoseconds" << std::endl;
         std::cout << std::endl;
     }
 

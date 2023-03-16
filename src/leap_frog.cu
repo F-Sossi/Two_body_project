@@ -77,6 +77,65 @@ __global__ void update_velocities(int num_bodies, float dt, const float *d_force
 }
 
 //---------------------------------------------------------------------------
+// Kernel function to calculate the forces on each body added fused operations
+// Input:
+//        num_bodies - number of bodies in the simulation
+//        d_positions - array of positions of each body
+//        d_masses - array of masses of each body
+//        d_forces - array of forces on each body
+// Output: none
+//---------------------------------------------------------------------------
+__global__ void calculate_forces2(int num_bodies, const float *d_positions, const float *d_masses, float *d_forces)
+{
+    // Declare shared memory for positions and masses
+    __shared__ float s_positions[BLOCK_SIZE_LEAP * 3];
+    __shared__ float s_masses[BLOCK_SIZE_LEAP];
+
+    // Get the index of the current body
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Get the position and mass of the current body
+    float xi = d_positions[3 * i], yi = d_positions[3 * i + 1], zi = d_positions[3 * i + 2];
+    float mi = d_masses[i / 3];
+
+    // Initialize the force components for the current body
+    float fx = 0.0, fy = 0.0, fz = 0.0;
+
+    // Loop over all other bodies in the simulation
+    for (int j = 0; j < num_bodies; j += blockDim.x * gridDim.x) {
+        // Load positions and masses into shared memory for the current block
+        int k = j + threadIdx.x;
+        if (k < num_bodies) {
+            s_positions[3 * threadIdx.x] = d_positions[3 * k];
+            s_positions[3 * threadIdx.x + 1] = d_positions[3 * k + 1];
+            s_positions[3 * threadIdx.x + 2] = d_positions[3 * k + 2];
+            s_masses[threadIdx.x] = d_masses[k / 3];
+        }
+        __syncthreads();
+
+        // Compute forces using shared memory for positions and masses
+        for (int l = 0; l < blockDim.x && j + l < num_bodies; l++) {
+            if (i != j + l) {
+                float xj = s_positions[3 * l], yj = s_positions[3 * l + 1], zj = s_positions[3 * l + 2];
+                float mj = s_masses[l];
+                float dx = xj - xi, dy = yj - yi, dz = zj - zi;
+                float dist = sqrt(dx * dx + dy * dy + dz * dz);
+                float f = G * mi * mj / (dist * dist * dist);
+                fx += f * dx;
+                fy += f * dy;
+                fz += f * dz;
+            }
+        }
+        __syncthreads();
+    }
+
+    // Store the force components for the current body
+    d_forces[3 * i] = fx;
+    d_forces[3 * i + 1] = fy;
+    d_forces[3 * i + 2] = fz;
+}
+
+//---------------------------------------------------------------------------
 // Kernel function to calculate the forces on each body
 // Input:
 //        num_bodies - number of bodies in the simulation
@@ -210,7 +269,7 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
         update_positions<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_positions);
 
         // Calculate forces at new positions.
-        calculate_forces<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        calculate_forces2<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
 
         // Update velocities with full-step forces.
         update_velocities<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);
