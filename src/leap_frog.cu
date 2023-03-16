@@ -269,7 +269,7 @@ void LeapFrogIntegrator::step(int num_steps, float dt)
         update_positions<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_positions);
 
         // Calculate forces at new positions.
-        calculate_forces2<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
+        calculate_forces<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
 
         // Update velocities with full-step forces.
         update_velocities<<<num_blocks, block_size>>>(num_bodies, dt, d_forces, d_velocities);

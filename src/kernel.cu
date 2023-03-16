@@ -33,9 +33,9 @@
 #include "verlet.h"
 
 //// Runs timing tests for each simulation loop
-//#define TEST
+#define TEST
 // Run individual version of simulation
-#define CUSTOM
+//#define CUSTOM
 
 
 int main()
