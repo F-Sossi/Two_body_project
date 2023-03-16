@@ -357,11 +357,11 @@ void runNBodySimulationParallel(int numBodies, int numIterations, float deltaTim
         writePositionDataToFile(bodies_h, numBodies, fileName);
 
         // Print the positions of the first few particles for debugging purposes
-        for (int j = 0; j < 10; j++) 
-        {
-            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x, 
-                    bodies_h[j].position.y, bodies_h[j].position.z);
-        }
+//        for (int j = 0; j < 10; j++)
+//        {
+//            printf("Particle %d position: (%f, %f, %f)\n", j, bodies_h[j].position.x,
+//                    bodies_h[j].position.y, bodies_h[j].position.z);
+//        }
     }
 
 
