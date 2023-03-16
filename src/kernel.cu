@@ -32,15 +32,17 @@
 #include "leap_frog.h"
 #include "verlet.h"
 
-//#define TEST
-#define CUSTOM
+//// Runs timing tests for each simulation loop
+#define TEST
+// Run individual version of simulation
+//#define CUSTOM
 
 
 int main()
 {
 
 #ifdef TEST
-     std::vector<int>testSizes = { 5000, 7684, 20000, 200000, 500000, 1000000};
+     std::vector<int>testSizes = { 8192, 100435};
      std::vector<long long>testTimesSim1;
      std::vector<long long>testTimesSim2;
      std::vector<long long>testTimesSim3;
@@ -64,15 +66,15 @@ int main()
         auto durationSim1 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim1 - startsim1);
         testTimesSim1.push_back(durationSim1.count());
 
-        // print Running simulation2 for each test size:
-        std::cout << "Running simulation2 for test size: " << testSizes[i] << std::endl;
-
-        auto startsim2 = std::chrono::high_resolution_clock::now();
-        runNbodySimulation(testSizes[i], numIterations, deltaTime, damping);
-        auto endsim2 = std::chrono::high_resolution_clock::now();
-
-        auto durationSim2 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim2 - startsim2);
-        testTimesSim2.push_back(durationSim2.count());
+//        // print Running simulation2 for each test size:
+//        std::cout << "Running simulation2 for test size: " << testSizes[i] << std::endl;
+//
+//        auto startsim2 = std::chrono::high_resolution_clock::now();
+//        runNbodySimulation(testSizes[i], numIterations, deltaTime, damping);
+//        auto endsim2 = std::chrono::high_resolution_clock::now();
+//
+//        auto durationSim2 = std::chrono::duration_cast<std::chrono::nanoseconds>(endsim2 - startsim2);
+//        testTimesSim2.push_back(durationSim2.count());
 
         // print Running simulation3 for each test size:
         std::cout << "Running simulation3 for test size: " << testSizes[i] << std::endl;
@@ -99,7 +101,7 @@ int main()
         // print test size and time taken for each simulation
         std::cout << "Test Size: " << testSizes[i] << std::endl;
         std::cout << "Time taken for simulation 1: " << durationSim1.count() << " nanoseconds" << std::endl;
-        std::cout << "Time taken for simulation 2: " << durationSim2.count() << " nanoseconds" << std::endl;
+        //std::cout << "Time taken for simulation 2: " << durationSim2.count() << " nanoseconds" << std::endl;
         std::cout << "Time taken for simulation 3: " << durationSim3.count() << " nanoseconds" << std::endl;
         std::cout << "Time taken for simulation 4: " << durationSim4.count() << " nanoseconds" << std::endl;
         std::cout << std::endl;
@@ -109,28 +111,28 @@ int main()
 
 #ifdef CUSTOM
 
-    const int num_bodies = 5467
+    const int num_bodies = 2000000;
     const int numIterations = 1;
-    const float deltaTime = 10.1;
+    const float deltaTime = 10.0;
     const float damping = 0.999;
 
-    // Run simulation 1 from n_body_sim_1.h
+//    // Run simulation 1 from n_body_sim_1.h
 //    std::cout << "Running simulation1 for test size: " << num_bodies << std::endl;
 //    runNBodySimulationParallel(num_bodies, numIterations, deltaTime, damping);
 
-    // Run simulation 2 from n_body_sim_2.h
+//    // Run simulation 2 from n_body_sim_2.h
 //    std::cout << "Running simulation2 for test size: " << num_bodies << std::endl;
 //    runNbodySimulation(num_bodies, numIterations, deltaTime, damping);
 
-    // Run simulation 3 from leap_frog.h
+//    //Run simulation 3 from leap_frog.h
 //    std::cout << "Running LeapFrog for test size: " << num_bodies << std::endl;
 //    LeapFrogIntegrator integrator1(num_bodies);
 //    integrator1.step(numIterations, deltaTime);
 
-    // Run simulation 4 from verlet.h
-    std::cout << "Running Verlet for test size: " << num_bodies << std::endl;
-    VerletIntegrator integrator2(num_bodies);
-    integrator2.step(numIterations, deltaTime);
+//    // Run simulation 4 from verlet.h
+//    std::cout << "Running Verlet for test size: " << num_bodies << std::endl;
+//    VerletIntegrator integrator2(num_bodies);
+//    integrator2.step(numIterations, deltaTime);
 
 #endif
 

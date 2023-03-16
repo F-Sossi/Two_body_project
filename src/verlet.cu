@@ -215,6 +215,12 @@ void VerletIntegrator::step(int num_steps, float dt)
         // Calculate forces at old positions.
         calculate_forces_ver<<<num_blocks, block_size>>>(num_bodies, d_positions, d_masses, d_forces);
 
+        // get cuda error codes
+        cudaError_t err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            std::cout << "Error: " << cudaGetErrorString(err) << std::endl;
+        }
+
         // Update positions using Verlet method.
         update_positions_ver<<<num_blocks, block_size>>>(num_bodies, dt, d_velocities, d_forces, d_positions, d_masses);
 
