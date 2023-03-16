@@ -33,9 +33,9 @@
 #include "verlet.h"
 
 //// Runs timing tests for each simulation loop
-#define TEST
+//#define TEST
 // Run individual version of simulation
-//#define CUSTOM
+#define CUSTOM
 
 
 int main()
@@ -111,14 +111,14 @@ int main()
 
 #ifdef CUSTOM
 
-    const int num_bodies = 2000000;
-    const int numIterations = 1;
-    const float deltaTime = 10.0;
-    const float damping = 0.999;
+    const int num_bodies    = 2000;
+    const int numIterations = 100;
+    const float deltaTime   = 10.0;
+    const float damping     = 0.999;
 
 //    // Run simulation 1 from n_body_sim_1.h
-//    std::cout << "Running simulation1 for test size: " << num_bodies << std::endl;
-//    runNBodySimulationParallel(num_bodies, numIterations, deltaTime, damping);
+    std::cout << "Running simulation1 for test size: " << num_bodies << std::endl;
+    runNBodySimulationParallel(num_bodies, numIterations, deltaTime, damping);
 
 //    // Run simulation 2 from n_body_sim_2.h
 //    std::cout << "Running simulation2 for test size: " << num_bodies << std::endl;

@@ -235,30 +235,38 @@ void integrate(Body *bodies, int numBodies, float deltaTime, float damping)
 // Output: none
 //---------------------------------------------------------------------------
 __global__
-void update(Body *bodies_n0, Body *bodies_n1, float deltaTime)
+void update(Body *bodies_n0, Body *bodies_n1, int numBodies, float deltaTime)
 {
+
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i > numBodies)
+    {
+        return;
+    }
+
     // The acceleration had been previously computed
     // among the N bodies. Now the velocity and position
     // must be updated.
-    float4 acceleration = bodies_n0[blockIdx.x].acceleration;
+    float4 acceleration = bodies_n0[i].acceleration;
 
     // Update velocity using acceleration and damping
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.x), acceleration.x * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.y), acceleration.y * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.z), acceleration.z * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].velocity.w), 0);
+    atomicAdd(&(bodies_n0[i].velocity.x), acceleration.x * deltaTime);
+    atomicAdd(&(bodies_n0[i].velocity.y), acceleration.y * deltaTime);
+    atomicAdd(&(bodies_n0[i].velocity.z), acceleration.z * deltaTime);
+    atomicAdd(&(bodies_n0[i].velocity.w), 0);
 
     __syncthreads();
 
-    float4 velocity = bodies_n0[blockIdx.x].velocity;
+    float4 velocity = bodies_n0[i].velocity;
 
-    atomicAdd(&(bodies_n0[blockIdx.x].position.x), velocity.x * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].position.y), velocity.y * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].position.z), velocity.z * deltaTime);
-    atomicAdd(&(bodies_n0[blockIdx.x].position.w), 0);
+    atomicAdd(&(bodies_n0[i].position.x), velocity.x * deltaTime);
+    atomicAdd(&(bodies_n0[i].position.y), velocity.y * deltaTime);
+    atomicAdd(&(bodies_n0[i].position.z), velocity.z * deltaTime);
+    atomicAdd(&(bodies_n0[i].position.w), 0);
 
     // Data will stay persistent in-between kernel calls
-    bodies_n1[blockIdx.x] = bodies_n0[blockIdx.x];
+    bodies_n1[i] = bodies_n0[i];
 }
 
 //---------------------------------------------------------------------------
@@ -284,7 +292,7 @@ void integrateNbodySystem(Body *bodies_n0, Body *bodies_n1,
 
     cudaDeviceSynchronize();
 
-    update<<<numBodies, 1>>>(bodies_n0, bodies_n1, deltaTime);
+    update<<<numBlocks, threadsPerBlock>>>(bodies_n0, bodies_n1, numBodies, deltaTime);
 
     cudaDeviceSynchronize();
 }
